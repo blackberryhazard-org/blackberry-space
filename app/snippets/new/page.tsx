@@ -26,9 +26,9 @@ export default function CreateSnippetPage() {
 
     const tags = tagsString.split(',').map(tag => tag.trim()).filter(Boolean);
 
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
       setError('You must be logged in to create a snippet.');
       setLoading(false);
       return;
@@ -44,7 +44,7 @@ export default function CreateSnippetPage() {
           code,
           tags,
           credits,
-          user_id: session.user.id
+          user_id: user.id
         })
         .select()
         .single();

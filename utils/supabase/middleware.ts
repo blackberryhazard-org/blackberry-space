@@ -4,6 +4,10 @@ import { type NextRequest, NextResponse } from "next/server";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder";
 
+// SameSite=None+Secure only in production (HTTPS). In local HTTP dev the browser
+// would reject those cookies and break the session — use Lax + insecure instead.
+const isProd = process.env.NODE_ENV === "production";
+
 export const updateSession = async (request: NextRequest) => {
   // Create an unmodified response
   let supabaseResponse = NextResponse.next({
@@ -28,8 +32,8 @@ export const updateSession = async (request: NextRequest) => {
               name,
               value,
               ...options,
-              sameSite: 'none', 
-              secure: true,
+              sameSite: isProd ? 'none' : 'lax',
+              secure: isProd,
             })
           )
         },

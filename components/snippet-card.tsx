@@ -4,6 +4,7 @@ import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Copy, Check, Heart } from 'lucide-react';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -34,7 +35,9 @@ interface SnippetCardProps {
 export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggleFavorite }: SnippetCardProps) {
   const [copied, setCopied] = useState(false);
   const [localFavorited, setLocalFavorited] = useState(isFavorited);
+  const [isToggling, setIsToggling] = useState(false);
   const supabase = createClient();
+  const router = useRouter();
 
   const handleCopy = () => {
     navigator.clipboard.writeText(snippet.code);
@@ -43,16 +46,32 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
   };
 
   const handleFavorite = async () => {
-    if (!currentUser) return;
-    
-    // Optistic UI update
-    setLocalFavorited(!localFavorited);
+    // Ignore clicks while a request is in flight to avoid duplicate rows / race conditions.
+    if (!currentUser || isToggling) return;
+
+    const next = !localFavorited;
+
+    // Optimistic UI update
+    setIsToggling(true);
+    setLocalFavorited(next);
     if (onToggleFavorite) onToggleFavorite(snippet.id, localFavorited);
 
-    if (!localFavorited) {
-      await supabase.from('favorites').insert({ snippet_id: snippet.id, user_id: currentUser.id });
-    } else {
-      await supabase.from('favorites').delete().eq('snippet_id', snippet.id).eq('user_id', currentUser.id);
+    try {
+      const { error } = next
+        ? await supabase.from('favorites').insert({ snippet_id: snippet.id, user_id: currentUser.id })
+        : await supabase.from('favorites').delete().eq('snippet_id', snippet.id).eq('user_id', currentUser.id);
+
+      if (error) throw error;
+
+      // Re-sync server components (e.g. the Favorites list) with the new state.
+      router.refresh();
+    } catch (err) {
+      // Roll back the optimistic update on failure.
+      setLocalFavorited(!next);
+      if (onToggleFavorite) onToggleFavorite(snippet.id, next);
+      console.error('Failed to toggle favorite:', err);
+    } finally {
+      setIsToggling(false);
     }
   };
 
@@ -61,7 +80,7 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
       <div className="p-5 flex flex-col gap-4">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="text-xl font-bold text-white group-hover:text-red-500 transition-colors cursor-pointer">
+            <h3 className="text-xl font-bold text-white">
               {snippet.title}
             </h3>
             {snippet.description && (
@@ -70,8 +89,8 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
           </div>
           <button
             onClick={handleFavorite}
-            disabled={!currentUser}
-            className={`p-2 rounded-xl transition-all ${!currentUser ? 'opacity-50 cursor-not-allowed' : 'hover:bg-neutral-800 active:scale-95'}`}
+            disabled={!currentUser || isToggling}
+            className={`p-2 rounded-xl transition-all ${!currentUser ? 'opacity-50 cursor-not-allowed' : 'hover:bg-neutral-800 active:scale-95'} ${isToggling ? 'opacity-60 cursor-wait' : ''}`}
             title={!currentUser ? "Login to favorite" : localFavorited ? "Remove from favorites" : "Add to favorites"}
           >
             <Heart className={`w-5 h-5 ${localFavorited ? 'fill-red-500 text-red-500' : 'text-neutral-500'}`} />

@@ -1,20 +1,32 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Blackberry Space
 
-# Run and deploy your AI Studio app
+A platform for developers to share code snippets and solve programming challenges.
 
-This contains everything you need to run your app locally.
-
-View your app in AI Studio: https://ai.studio/apps/57111bbe-9808-4a07-a3ee-d29d6e246c9a
+Built with **Next.js 15 (App Router)**, **Supabase** (GitHub OAuth + Postgres), and **Tailwind CSS**.
 
 ## Run Locally
 
-**Prerequisites:**  Node.js
-
+**Prerequisites:** Node.js 18+ and a [Supabase](https://supabase.com) project.
 
 1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+   ```bash
+   npm install
+   ```
+
+2. Create `.env.local` (see [.env.example](.env.example)) and set your Supabase credentials:
+   ```bash
+   NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
+   NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
+   ```
+
+3. Set up the database. In the Supabase SQL Editor, run [`supabase/schema.sql`](supabase/schema.sql)
+   to create the `profiles`, `snippets`, and `favorites` tables with Row Level Security.
+
+4. Enable the **GitHub** auth provider in your Supabase dashboard
+   (Authentication → Providers) and add `http://localhost:3000/auth/callback`
+   as a redirect URL.
+
+5. Run the app:
+   ```bash
+   npm run dev
+   ```
