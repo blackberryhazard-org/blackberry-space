@@ -1,6 +1,0 @@
-{
-  "name": "Blackberry Space",
-  "description": "A platform for developers to share code snippets and solve programming challenges.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
