@@ -15,8 +15,8 @@ export function MobileNav() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user ?? null);
     };
     fetchUser();
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {

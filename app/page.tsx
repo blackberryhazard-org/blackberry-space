@@ -11,8 +11,7 @@ export default async function Home(props: { searchParams: Promise<{ q?: string }
   const q = searchParams?.q || '';
 
   const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-  const user = session?.user;
+  const { data: { user } } = await supabase.auth.getUser();
 
   // Fetch snippets
   let query = supabase
@@ -24,7 +23,12 @@ export default async function Home(props: { searchParams: Promise<{ q?: string }
     .order('created_at', { ascending: false });
 
   if (q) {
-    query = query.ilike('title', `%${q}%`);
+    // Strip characters that have special meaning in PostgREST's `or` grammar
+    // (comma / parentheses) before interpolating the user's search term.
+    const term = q.replace(/[,()]/g, ' ').trim();
+    if (term) {
+      query = query.or(`title.ilike.%${term}%,description.ilike.%${term}%`);
+    }
   }
 
   const { data: snippets, error } = await query;

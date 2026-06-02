@@ -14,8 +14,8 @@ export function Sidebar() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user ?? null);
     };
     fetchUser();
 
