@@ -1,12 +1,12 @@
 'use client';
 
-import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { Copy, Check, Heart } from 'lucide-react';
-import { useState } from 'react';
+import Link from 'next/link';
+import { Copy, Check, Heart, Edit, Trash2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
+import { codeToHtml } from 'shiki';
 
 interface Snippet {
   id: string;
@@ -36,8 +36,45 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
   const [copied, setCopied] = useState(false);
   const [localFavorited, setLocalFavorited] = useState(isFavorited);
   const [isToggling, setIsToggling] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [htmlCode, setHtmlCode] = useState<string>('');
+
   const supabase = createClient();
   const router = useRouter();
+
+  useEffect(() => {
+    async function highlightCode() {
+      try {
+        const html = await codeToHtml(snippet.code, {
+          lang: snippet.language,
+          theme: 'dark-plus',
+        });
+        setHtmlCode(html);
+      } catch (err) {
+        console.error('Error highlighting code with shiki:', err);
+        // Fallback to plain text if language is unsupported or error occurs
+        setHtmlCode(`<pre class="shiki dark-plus" style="background-color:#1E1E1E;color:#D4D4D4;" tabindex="0"><code>${snippet.code}</code></pre>`);
+      }
+    }
+    highlightCode();
+  }, [snippet.code, snippet.language]);
+
+  const handleDelete = async () => {
+    if (isDeleting || !currentUser || currentUser.id !== snippet.user_id) return;
+
+    if (window.confirm('Are you sure you want to delete this snippet? This action cannot be undone.')) {
+      setIsDeleting(true);
+      try {
+        const { error } = await supabase.from('snippets').delete().eq('id', snippet.id);
+        if (error) throw error;
+        router.refresh();
+      } catch (err) {
+        console.error('Failed to delete snippet:', err);
+        alert('Failed to delete snippet. Please try again.');
+        setIsDeleting(false);
+      }
+    }
+  };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(snippet.code);
@@ -46,12 +83,9 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
   };
 
   const handleFavorite = async () => {
-    // Ignore clicks while a request is in flight to avoid duplicate rows / race conditions.
     if (!currentUser || isToggling) return;
 
     const next = !localFavorited;
-
-    // Optimistic UI update
     setIsToggling(true);
     setLocalFavorited(next);
     if (onToggleFavorite) onToggleFavorite(snippet.id, localFavorited);
@@ -62,11 +96,8 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
         : await supabase.from('favorites').delete().eq('snippet_id', snippet.id).eq('user_id', currentUser.id);
 
       if (error) throw error;
-
-      // Re-sync server components (e.g. the Favorites list) with the new state.
       router.refresh();
     } catch (err) {
-      // Roll back the optimistic update on failure.
       setLocalFavorited(!next);
       if (onToggleFavorite) onToggleFavorite(snippet.id, next);
       console.error('Failed to toggle favorite:', err);
@@ -87,14 +118,36 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
               <p className="text-sm text-neutral-400 mt-1 line-clamp-2">{snippet.description}</p>
             )}
           </div>
-          <button
-            onClick={handleFavorite}
-            disabled={!currentUser || isToggling}
-            className={`p-2 rounded-xl transition-all ${!currentUser ? 'opacity-50 cursor-not-allowed' : 'hover:bg-neutral-800 active:scale-95'} ${isToggling ? 'opacity-60 cursor-wait' : ''}`}
-            title={!currentUser ? "Login to favorite" : localFavorited ? "Remove from favorites" : "Add to favorites"}
-          >
-            <Heart className={`w-5 h-5 ${localFavorited ? 'fill-red-500 text-red-500' : 'text-neutral-500'}`} />
-          </button>
+
+          <div className="flex items-center gap-1">
+            {currentUser && currentUser.id === snippet.user_id && (
+              <>
+                <Link
+                  href={`/snippets/${snippet.id}/edit`}
+                  className="p-2 rounded-xl transition-all hover:bg-neutral-800 text-neutral-500 hover:text-white"
+                  title="Edit snippet"
+                >
+                  <Edit className="w-5 h-5" />
+                </Link>
+                <button
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className={`p-2 rounded-xl transition-all hover:bg-neutral-800 text-neutral-500 hover:text-red-500 ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  title="Delete snippet"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
+              </>
+            )}
+            <button
+              onClick={handleFavorite}
+              disabled={!currentUser || isToggling}
+              className={`p-2 rounded-xl transition-all ${!currentUser ? 'opacity-50 cursor-not-allowed' : 'hover:bg-neutral-800 active:scale-95'} ${isToggling ? 'opacity-60 cursor-wait' : ''}`}
+              title={!currentUser ? "Login to favorite" : localFavorited ? "Remove from favorites" : "Add to favorites"}
+            >
+              <Heart className={`w-5 h-5 ${localFavorited ? 'fill-red-500 text-red-500' : 'text-neutral-500'}`} />
+            </button>
+          </div>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
@@ -119,21 +172,15 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
                {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
              </button>
           </div>
-         <div className="max-h-[300px] overflow-auto flex-1 font-mono text-sm leading-relaxed custom-scrollbar">
-           <SyntaxHighlighter
-             language={snippet.language}
-             style={vscDarkPlus}
-             customStyle={{
-               margin: 0,
-               padding: '1rem',
-               background: '#09090b', // darker background for code
-               fontSize: '0.875rem',
-             }}
-             showLineNumbers={true}
-             lineNumberStyle={{ minWidth: '3em', paddingRight: '1em', color: '#52525b', textAlign: 'right' }}
-           >
-             {snippet.code}
-           </SyntaxHighlighter>
+         <div className="max-h-[300px] overflow-auto flex-1 font-mono text-sm leading-relaxed custom-scrollbar bg-[#1E1E1E]">
+           {htmlCode ? (
+             <div
+               dangerouslySetInnerHTML={{ __html: htmlCode }}
+               className="[&>pre]:!bg-transparent [&>pre]:!p-4 [&>pre]:!m-0 [&>pre]:!text-[0.875rem]"
+             />
+           ) : (
+             <pre className="p-4 text-neutral-400 animate-pulse">Loading code...</pre>
+           )}
          </div>
       </div>
 
