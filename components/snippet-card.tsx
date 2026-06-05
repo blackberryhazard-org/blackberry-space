@@ -1,8 +1,9 @@
 'use client';
+import Link from 'next/link';
 
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { Copy, Check, Heart } from 'lucide-react';
+import { Copy, Check, Heart, Edit, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
@@ -38,6 +39,26 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
   const [isToggling, setIsToggling] = useState(false);
   const supabase = createClient();
   const router = useRouter();
+
+
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (isDeleting || !currentUser || currentUser.id !== snippet.user_id) return;
+
+    if (window.confirm('Are you sure you want to delete this snippet? This action cannot be undone.')) {
+      setIsDeleting(true);
+      try {
+        const { error } = await supabase.from('snippets').delete().eq('id', snippet.id);
+        if (error) throw error;
+        router.refresh();
+      } catch (err) {
+        console.error('Failed to delete snippet:', err);
+        alert('Failed to delete snippet. Please try again.');
+        setIsDeleting(false);
+      }
+    }
+  };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(snippet.code);
@@ -87,14 +108,37 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
               <p className="text-sm text-neutral-400 mt-1 line-clamp-2">{snippet.description}</p>
             )}
           </div>
-          <button
-            onClick={handleFavorite}
+
+          <div className="flex items-center gap-1">
+            {currentUser && currentUser.id === snippet.user_id && (
+              <>
+                <Link
+                  href={`/snippets/${snippet.id}/edit`}
+                  className="p-2 rounded-xl transition-all hover:bg-neutral-800 text-neutral-500 hover:text-white"
+                  title="Edit snippet"
+                >
+                  <Edit className="w-5 h-5" />
+                </Link>
+                <button
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className={`p-2 rounded-xl transition-all hover:bg-neutral-800 text-neutral-500 hover:text-red-500 ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  title="Delete snippet"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
+              </>
+            )}
+            <button
+              onClick={handleFavorite}
+
             disabled={!currentUser || isToggling}
             className={`p-2 rounded-xl transition-all ${!currentUser ? 'opacity-50 cursor-not-allowed' : 'hover:bg-neutral-800 active:scale-95'} ${isToggling ? 'opacity-60 cursor-wait' : ''}`}
             title={!currentUser ? "Login to favorite" : localFavorited ? "Remove from favorites" : "Add to favorites"}
-          >
-            <Heart className={`w-5 h-5 ${localFavorited ? 'fill-red-500 text-red-500' : 'text-neutral-500'}`} />
-          </button>
+            >
+              <Heart className={`w-5 h-5 ${localFavorited ? 'fill-red-500 text-red-500' : 'text-neutral-500'}`} />
+            </button>
+          </div>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
