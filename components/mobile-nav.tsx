@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Home, PlusSquare, Heart, CodeSquare, Menu, X, LogIn, LogOut } from 'lucide-react';
+import { Home, PlusSquare, Heart, CodeSquare, Menu, X, LogIn, LogOut, Compass, FileCode2 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
@@ -36,8 +36,8 @@ export function MobileNav() {
     await supabase.auth.signOut();
   };
 
-  const navItems = [
-    { name: 'Discover', href: '/', icon: Home },
+  const snippetItems = [
+    { name: 'Discover', href: '/', icon: Compass },
     { name: 'Create Snippet', href: '/snippets/new', icon: PlusSquare },
     { name: 'Favorites', href: '/favorites', icon: Heart },
   ];
@@ -69,25 +69,49 @@ export function MobileNav() {
                 <X className="w-6 h-6" />
               </button>
           </div>
-          <nav className="flex-1 px-4 py-6 space-y-2">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => setIsOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
-                    isActive 
-                      ? 'bg-neutral-800/50 text-red-500' 
-                      : 'text-neutral-400 active:bg-neutral-900'
-                  }`}
-                >
-                  <item.icon className={`w-5 h-5 ${isActive ? 'text-red-500' : ''}`} />
-                  <span className="font-medium text-lg">{item.name}</span>
-                </Link>
-              );
-            })}
+          <nav className="flex-1 px-4 py-6 overflow-y-auto">
+            <div className="space-y-2">
+              <Link
+                href="/"
+                onClick={() => setIsOpen(false)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+                  pathname === '/'
+                    ? 'bg-neutral-800/50 text-red-500'
+                    : 'text-neutral-400 active:bg-neutral-900'
+                }`}
+              >
+                <Home className={`w-5 h-5 ${pathname === '/' ? 'text-red-500' : ''}`} />
+                <span className="font-medium text-lg">Home</span>
+              </Link>
+            </div>
+
+            <div className="mt-8">
+              <div className="px-4 mb-3 flex items-center gap-2 text-neutral-500 text-sm font-bold uppercase tracking-wider">
+                <FileCode2 className="w-5 h-5" />
+                Snippets
+              </div>
+              <div className="space-y-2 pl-4 border-l-2 border-neutral-800 ml-6">
+                {snippetItems.map((item) => {
+                  const isActive = (item.name === 'Discover' && pathname === '/') ||
+                                   (item.name !== 'Discover' && pathname === item.href);
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      onClick={() => setIsOpen(false)}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+                        isActive
+                          ? 'bg-neutral-800/50 text-red-500'
+                          : 'text-neutral-400 active:bg-neutral-900'
+                      }`}
+                    >
+                      <item.icon className={`w-5 h-5 ${isActive ? 'text-red-500' : ''}`} />
+                      <span className="font-medium text-base">{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
           </nav>
 
           <div className="p-6 border-t border-neutral-800">

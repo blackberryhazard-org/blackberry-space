@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Home, PlusSquare, Heart, Settings, CodeSquare, LogIn, LogOut } from 'lucide-react';
+import { Home, PlusSquare, Heart, Settings, CodeSquare, LogIn, LogOut, Compass, FileCode2 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { useEffect, useState } from 'react';
@@ -41,8 +41,8 @@ export function Sidebar() {
     await supabase.auth.signOut();
   };
 
-  const navItems = [
-    { name: 'Discover', href: '/', icon: Home },
+  const snippetItems = [
+    { name: 'Discover', href: '/', icon: Compass },
     { name: 'Create Snippet', href: '/snippets/new', icon: PlusSquare },
     { name: 'Favorites', href: '/favorites', icon: Heart },
   ];
@@ -58,24 +58,48 @@ export function Sidebar() {
         </Link>
       </div>
 
-      <nav className="flex-1 px-4 space-y-2 mt-4">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
-                isActive 
-                  ? 'bg-neutral-800/50 text-red-500' 
-                  : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
-              }`}
-            >
-              <item.icon className={`w-5 h-5 ${isActive ? 'text-red-500' : ''}`} />
-              <span className="font-medium">{item.name}</span>
-            </Link>
-          );
-        })}
+      <nav className="flex-1 px-4 mt-4 overflow-y-auto">
+        <div className="space-y-1">
+          <Link
+            href="/"
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+              pathname === '/'
+                ? 'bg-neutral-800/50 text-red-500'
+                : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+            }`}
+          >
+            <Home className={`w-5 h-5 ${pathname === '/' ? 'text-red-500' : ''}`} />
+            <span className="font-medium">Home</span>
+          </Link>
+        </div>
+
+        <div className="mt-6">
+          <div className="px-3 mb-2 flex items-center gap-2 text-neutral-500 text-xs font-bold uppercase tracking-wider">
+            <FileCode2 className="w-4 h-4" />
+            Snippets
+          </div>
+          <div className="space-y-1 pl-3 border-l border-neutral-800 ml-5">
+            {snippetItems.map((item) => {
+              // Exact match for discover, others simple match
+              const isActive = (item.name === 'Discover' && pathname === '/') ||
+                               (item.name !== 'Discover' && pathname === item.href);
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm ${
+                    isActive
+                      ? 'bg-neutral-800/50 text-red-500'
+                      : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+                  }`}
+                >
+                  <item.icon className={`w-4 h-4 ${isActive ? 'text-red-500' : ''}`} />
+                  <span className="font-medium">{item.name}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
       </nav>
 
       <div className="p-4 border-t border-neutral-800">
