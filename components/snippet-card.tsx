@@ -53,7 +53,18 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
       } catch (err) {
         console.error('Error highlighting code with shiki:', err);
         // Fallback to plain text if language is unsupported or error occurs
-        setHtmlCode(`<pre class="shiki dark-plus" style="background-color:#1E1E1E;color:#D4D4D4;" tabindex="0"><code>${snippet.code}</code></pre>`);
+
+        // Securely escape HTML to prevent XSS
+        const escapeHtml = (text: string) => {
+          return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+        };
+
+        setHtmlCode(`<pre class="shiki dark-plus" style="background-color:#1E1E1E;color:#D4D4D4;" tabindex="0"><code>${escapeHtml(snippet.code)}</code></pre>`);
       }
     }
     highlightCode();
