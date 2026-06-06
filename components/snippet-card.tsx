@@ -54,7 +54,14 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
     if (window.confirm('Are you sure you want to delete this snippet? This action cannot be undone.')) {
       setIsDeleting(true);
       try {
-        const { error } = await supabase.from('snippets').delete().eq('id', snippet.id);
+        // SECURITY ENHANCEMENT: Defense in depth to prevent IDOR
+        // Ensures only the snippet owner can delete it, even if RLS is misconfigured
+        const { error } = await supabase
+          .from('snippets')
+          .delete()
+          .eq('id', snippet.id)
+          .eq('user_id', currentUser.id);
+
         if (error) throw error;
         router.refresh();
       } catch (err) {

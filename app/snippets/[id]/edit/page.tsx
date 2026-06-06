@@ -64,6 +64,13 @@ export default function EditSnippetPage({ params }: { params: Promise<{ id: stri
     const tags = tagsString.split(',').map(tag => tag.trim()).filter(Boolean);
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('You must be logged in to edit this snippet.');
+      }
+
+      // SECURITY ENHANCEMENT: Defense in depth to prevent IDOR
+      // Ensures only the snippet owner can update it, even if RLS is misconfigured
       const { error: updateError } = await supabase
         .from('snippets')
         .update({
@@ -74,7 +81,8 @@ export default function EditSnippetPage({ params }: { params: Promise<{ id: stri
           tags,
           credits,
         })
-        .eq('id', resolvedParams.id);
+        .eq('id', resolvedParams.id)
+        .eq('user_id', user.id);
 
       if (updateError) {
         throw updateError;
