@@ -136,28 +136,31 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
               <>
                 <Link
                   href={`/snippets/${snippet.id}/edit`}
-                  className="p-2 rounded-xl transition-all hover:bg-neutral-800 text-neutral-500 hover:text-white"
+                  className="p-2 rounded-xl transition-all hover:bg-neutral-800 text-neutral-500 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                   title="Edit snippet"
+                  aria-label="Edit snippet"
                 >
-                  <Edit className="w-5 h-5" />
+                  <Edit className="w-5 h-5" aria-hidden="true" />
                 </Link>
                 <button
                   onClick={handleDelete}
                   disabled={isDeleting}
-                  className={`p-2 rounded-xl transition-all hover:bg-neutral-800 text-neutral-500 hover:text-red-500 ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`p-2 rounded-xl transition-all hover:bg-neutral-800 text-neutral-500 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
                   title="Delete snippet"
+                  aria-label="Delete snippet"
                 >
-                  <Trash2 className="w-5 h-5" />
+                  <Trash2 className="w-5 h-5" aria-hidden="true" />
                 </button>
               </>
             )}
             <button
               onClick={handleFavorite}
               disabled={!currentUser || isToggling}
-              className={`p-2 rounded-xl transition-all ${!currentUser ? 'opacity-50 cursor-not-allowed' : 'hover:bg-neutral-800 active:scale-95'} ${isToggling ? 'opacity-60 cursor-wait' : ''}`}
+              className={`p-2 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 ${!currentUser ? 'opacity-50 cursor-not-allowed' : 'hover:bg-neutral-800 active:scale-95'} ${isToggling ? 'opacity-60 cursor-wait' : ''}`}
               title={!currentUser ? "Login to favorite" : localFavorited ? "Remove from favorites" : "Add to favorites"}
+              aria-label={localFavorited ? "Remove from favorites" : "Add to favorites"}
             >
-              <Heart className={`w-5 h-5 ${localFavorited ? 'fill-red-500 text-red-500' : 'text-neutral-500'}`} />
+              <Heart className={`w-5 h-5 ${localFavorited ? 'fill-red-500 text-red-500' : 'text-neutral-500'}`} aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -178,10 +181,11 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
           <div className="absolute top-3 right-3 z-10 flex gap-2">
             <button
                onClick={handleCopy}
-               className="p-1.5 rounded-lg bg-neutral-800/80 text-neutral-300 hover:text-white hover:bg-neutral-700 backdrop-blur-sm transition-all"
+               className="p-1.5 rounded-lg bg-neutral-800/80 text-neutral-300 hover:text-white hover:bg-neutral-700 backdrop-blur-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
                title="Copy Code"
+               aria-label="Copy snippet code"
              >
-               {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+               {copied ? <Check className="w-4 h-4 text-green-500" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
              </button>
           </div>
          <div className="max-h-[300px] overflow-auto flex-1 font-mono text-sm leading-relaxed custom-scrollbar bg-[#1E1E1E]">
