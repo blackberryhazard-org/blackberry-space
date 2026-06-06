@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import { SnippetCard } from '@/components/snippet-card';
+import { SnippetCardCompact } from '@/components/snippet-card-compact';
 import { Heart, HeartCrack } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -46,7 +47,7 @@ export default async function FavoritesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {favorites.map((fav: any) => (
             fav.snippets && (
-              <SnippetCard
+              <SnippetCardCompact
                 key={fav.snippet_id}
                 snippet={fav.snippets}
                 currentUser={user}

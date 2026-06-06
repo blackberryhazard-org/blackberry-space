@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import { SnippetCard } from '@/components/snippet-card';
+import { SnippetCardCompact } from '@/components/snippet-card-compact';
 import { FileCode2, Heart, Calendar } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
@@ -126,7 +127,7 @@ export default async function ProfilePage(props: { searchParams: Promise<{ tab?:
       {snippets.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {snippets.map((snippet) => (
-            <SnippetCard
+            <SnippetCardCompact
               key={snippet.id}
               snippet={snippet}
               currentUser={user}

@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import { SnippetCard } from '@/components/snippet-card';
+import { SnippetCardCompact } from '@/components/snippet-card-compact';
 import { Code } from 'lucide-react';
 import Link from 'next/link';
 import { SearchBar } from '@/components/search-bar';
@@ -65,7 +66,7 @@ export default async function Home(props: { searchParams: Promise<{ q?: string }
       ) : snippets && snippets.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {snippets.map((snippet) => (
-            <SnippetCard
+            <SnippetCardCompact
               key={snippet.id}
               snippet={snippet}
               currentUser={user}
