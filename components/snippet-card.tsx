@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Copy, Check, Heart, Edit, Trash2 } from 'lucide-react';
+import { Heart, Edit, Trash2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
@@ -32,44 +32,13 @@ interface SnippetCardProps {
 }
 
 export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggleFavorite }: SnippetCardProps) {
-  const [copied, setCopied] = useState(false);
-  const [localFavorited, setLocalFavorited] = useState(isFavorited);
+    const [localFavorited, setLocalFavorited] = useState(isFavorited);
   const [isToggling, setIsToggling] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [htmlCode, setHtmlCode] = useState<string>('');
 
   const supabase = createClient();
   const router = useRouter();
 
-  useEffect(() => {
-    async function highlightCode() {
-      try {
-        // ⚡ Bolt Optimization: Dynamically import heavy Shiki library only when needed
-        const { codeToHtml } = await import('shiki');
-        const html = await codeToHtml(snippet.code, {
-          lang: snippet.language,
-          theme: 'dark-plus',
-        });
-        setHtmlCode(html);
-      } catch (err) {
-        console.error('Error highlighting code with shiki:', err);
-        // Fallback to plain text if language is unsupported or error occurs
-
-        // Securely escape HTML to prevent XSS
-        const escapeHtml = (text: string) => {
-          return text
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-        };
-
-        setHtmlCode(`<pre class="shiki dark-plus" style="background-color:#1E1E1E;color:#D4D4D4;" tabindex="0"><code>${escapeHtml(snippet.code)}</code></pre>`);
-      }
-    }
-    highlightCode();
-  }, [snippet.code, snippet.language]);
 
   const handleDelete = async () => {
     if (isDeleting || !currentUser || currentUser.id !== snippet.user_id) return;
@@ -88,11 +57,6 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
     }
   };
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(snippet.code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   const handleFavorite = async () => {
     if (!currentUser || isToggling) return;
@@ -177,28 +141,7 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
         </div>
       </div>
 
-      <div className="relative border-t border-neutral-800 flex-1 flex flex-col">
-          <div className="absolute top-3 right-3 z-10 flex gap-2">
-            <button
-               onClick={handleCopy}
-               className="p-1.5 rounded-lg bg-neutral-800/80 text-neutral-300 hover:text-white hover:bg-neutral-700 backdrop-blur-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
-               title="Copy Code"
-               aria-label="Copy snippet code"
-             >
-               {copied ? <Check className="w-4 h-4 text-green-500" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
-             </button>
-          </div>
-         <div className="max-h-[300px] overflow-auto flex-1 font-mono text-sm leading-relaxed custom-scrollbar bg-[#1E1E1E]">
-           {htmlCode ? (
-             <div
-               dangerouslySetInnerHTML={{ __html: htmlCode }}
-               className="[&>pre]:!bg-transparent [&>pre]:!p-4 [&>pre]:!m-0 [&>pre]:!text-[0.875rem]"
-             />
-           ) : (
-             <pre className="p-4 text-neutral-400 animate-pulse">Loading code...</pre>
-           )}
-         </div>
-      </div>
+
 
        <div className="p-4 bg-neutral-950 border-t border-neutral-800 flex items-center justify-between">
            <div className="flex items-center gap-2">

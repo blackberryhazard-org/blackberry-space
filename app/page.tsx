@@ -4,24 +4,30 @@ import { SnippetCardCompact } from '@/components/snippet-card-compact';
 import { Code } from 'lucide-react';
 import Link from 'next/link';
 import { SearchBar } from '@/components/search-bar';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export const revalidate = 0; // Disable full page caching to always show latest snippets/auth state
 
-export default async function Home(props: { searchParams: Promise<{ q?: string }> }) {
+export default async function Home(props: { searchParams: Promise<{ q?: string; page?: string }> }) {
   const searchParams = await props.searchParams;
   const q = searchParams?.q || '';
+  const currentPage = Number(searchParams?.page) || 1;
+  const itemsPerPage = 10;
+  const from = (currentPage - 1) * itemsPerPage;
+  const to = from + itemsPerPage - 1;
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   // Fetch snippets
-  let query = supabase
+    let query = supabase
     .from('snippets')
     .select(`
       *,
       profiles ( full_name, avatar_url, username )
-    `)
-    .order('created_at', { ascending: false });
+    `, { count: 'exact' })
+    .order('created_at', { ascending: false })
+    .range(from, to);
 
   if (q) {
     // Strip characters that have special meaning in PostgREST's `or` grammar
@@ -32,7 +38,8 @@ export default async function Home(props: { searchParams: Promise<{ q?: string }
     }
   }
 
-  const { data: snippets, error } = await query;
+  const { data: snippets, count, error } = await query;
+  const totalPages = count ? Math.ceil(count / itemsPerPage) : 0;
 
   // Fetch user favorites if logged in
   let favoritedSnippetIds = new Set<string>();
@@ -85,6 +92,26 @@ export default async function Home(props: { searchParams: Promise<{ q?: string }
               Create Snippet
             </Link>
          </div>
+      )}
+
+      {snippets && snippets.length > 0 && totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-12">
+          <Link
+            href={`/?${new URLSearchParams({ ...(q ? { q } : {}), page: String(Math.max(1, currentPage - 1)) })}`}
+            className={`p-2 rounded-xl border border-neutral-800 transition-colors ${currentPage === 1 ? 'opacity-50 pointer-events-none' : 'hover:bg-neutral-800'}`}
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </Link>
+          <span className="text-neutral-400 font-medium px-4">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Link
+            href={`/?${new URLSearchParams({ ...(q ? { q } : {}), page: String(Math.min(totalPages, currentPage + 1)) })}`}
+            className={`p-2 rounded-xl border border-neutral-800 transition-colors ${currentPage >= totalPages ? 'opacity-50 pointer-events-none' : 'hover:bg-neutral-800'}`}
+          >
+            <ChevronRight className="w-5 h-5" />
+          </Link>
+        </div>
       )}
     </div>
   );
