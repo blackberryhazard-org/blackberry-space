@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Heart, Edit, Trash2 } from 'lucide-react';
+import { Heart, Edit, Trash2, Share2, Check } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
@@ -35,10 +35,18 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
     const [localFavorited, setLocalFavorited] = useState(isFavorited);
   const [isToggling, setIsToggling] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [shared, setShared] = useState(false);
 
   const supabase = createClient();
   const router = useRouter();
 
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}/snippets/${snippet.id}/view`;
+    await navigator.clipboard.writeText(url);
+    setShared(true);
+    setTimeout(() => setShared(false), 2000);
+  };
 
   const handleDelete = async () => {
     if (isDeleting || !currentUser || currentUser.id !== snippet.user_id) return;
@@ -96,6 +104,14 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
           </div>
 
           <div className="flex items-center gap-1">
+            <button
+              onClick={handleShare}
+              className="p-2 rounded-xl transition-all hover:bg-neutral-800 text-neutral-500 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
+              title="Share snippet"
+              aria-label="Share snippet link"
+            >
+              {shared ? <Check className="w-5 h-5 text-green-500" aria-hidden="true" /> : <Share2 className="w-5 h-5" aria-hidden="true" />}
+            </button>
             {currentUser && currentUser.id === snippet.user_id && (
               <>
                 <Link

@@ -55,7 +55,7 @@ export function SnippetCardCompact({ snippet, currentUser, isFavorited = false, 
       router.refresh();
     } catch (err) {
       setLocalFavorited(!next);
-      if (onToggleFavorite) onToggleFavorite(snippet.id, next);
+      if (onToggleFavorite) onToggleFavorite(snippet.id, !next);
       console.error('Failed to toggle favorite:', err);
     } finally {
       setIsToggling(false);
@@ -63,8 +63,7 @@ export function SnippetCardCompact({ snippet, currentUser, isFavorited = false, 
   };
 
   return (
-    <Link href={`/snippets/${snippet.id}/view`} className="block">
-      <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden flex flex-col group transition-all hover:border-neutral-700 hover:shadow-lg hover:shadow-neutral-950/50 cursor-pointer h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500">
+    <div onClick={() => router.push(`/snippets/${snippet.id}/view`)} className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden flex flex-col group transition-all hover:border-neutral-700 hover:shadow-lg hover:shadow-neutral-950/50 cursor-pointer h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') router.push(`/snippets/${snippet.id}/view`); }}>
         <div className="p-5 flex flex-col gap-4 flex-1">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -124,6 +123,5 @@ export function SnippetCardCompact({ snippet, currentUser, isFavorited = false, 
           </span>
         </div>
       </div>
-    </Link>
   );
 }
