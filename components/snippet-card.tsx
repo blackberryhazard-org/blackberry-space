@@ -6,7 +6,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
-import { codeToHtml } from 'shiki';
 
 interface Snippet {
   id: string;
@@ -45,6 +44,8 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
   useEffect(() => {
     async function highlightCode() {
       try {
+        // ⚡ Bolt Optimization: Dynamically import heavy Shiki library only when needed
+        const { codeToHtml } = await import('shiki');
         const html = await codeToHtml(snippet.code, {
           lang: snippet.language,
           theme: 'dark-plus',
