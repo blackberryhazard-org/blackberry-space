@@ -26,9 +26,10 @@ export function SearchBar() {
 
   return (
     <div className="relative w-full md:w-72">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" aria-hidden="true" />
       <input
-        type="text"
+        type="search"
+        aria-label="Search snippets"
         placeholder="Search snippets..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}

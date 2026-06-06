@@ -22,3 +22,12 @@
   }
 }
 
+
+@layer utilities {
+  .counter-reset-line {
+    counter-reset: line;
+  }
+  .counter-increment-line {
+    counter-increment: line;
+  }
+}
