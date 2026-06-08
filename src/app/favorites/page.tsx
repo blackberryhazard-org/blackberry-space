@@ -39,7 +39,7 @@ export default async function FavoritesPage() {
       </div>
 
       {error ? (
-        <div className="p-6 bg-red-500/10 border border-red-500/50 rounded-2xl text-red-400">
+        <div className="p-6 bg-red-500/10 border border-red-500/50  text-red-400">
            <p className="font-semibold mb-1">Error fetching favorites.</p>
            <pre className="mt-4 text-xs font-mono bg-black/30 p-2 rounded">{error.message}</pre>
         </div>
@@ -57,13 +57,13 @@ export default async function FavoritesPage() {
           ))}
         </div>
       ) : (
-         <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-neutral-800 rounded-2xl bg-neutral-900/50">
-            <div className="w-16 h-16 bg-neutral-800 rounded-full flex items-center justify-center mb-4">
+         <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-neutral-800  bg-neutral-900/50">
+            <div className="w-16 h-16 bg-neutral-800  flex items-center justify-center mb-4">
               <HeartCrack className="w-8 h-8 text-neutral-500" />
             </div>
             <h3 className="text-xl font-bold text-white mb-2">No favorites yet</h3>
             <p className="text-neutral-400 max-w-sm mb-6">Explore the community snippets and heart the ones you find useful.</p>
-            <Link href="/" className="px-6 py-2.5 bg-red-600 text-white font-bold rounded-xl hover:bg-red-500 transition-colors">
+            <Link href="/" className="px-6 py-2.5 bg-red-600 text-white font-bold  hover:bg-red-500 transition-colors">
               Discover Snippets
             </Link>
          </div>
