@@ -70,8 +70,8 @@ export default async function ProfilePage(props: { searchParams: Promise<{ tab?:
 
   return (
     <div className="pb-12 max-w-4xl mx-auto">
-      <div className="bg-neutral-900 border border-neutral-800  p-8 mb-8 flex flex-col md:flex-row items-center md:items-start gap-6">
-        <div className="w-24 h-24  bg-neutral-800 overflow-hidden border border-neutral-700 flex-shrink-0">
+      <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-8 mb-8 flex flex-col md:flex-row items-center md:items-start gap-6">
+        <div className="w-24 h-24 rounded-2xl bg-neutral-800 overflow-hidden border border-neutral-700 flex-shrink-0">
           {user.user_metadata.avatar_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover" />
@@ -102,7 +102,7 @@ export default async function ProfilePage(props: { searchParams: Promise<{ tab?:
       <div className="flex items-center gap-2 border-b border-neutral-800 mb-8 pb-4">
         <Link
           href="/profile?tab=snippets"
-          className={`flex items-center gap-2 px-4 py-2  transition-colors font-medium ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-colors font-medium ${
             tab === 'snippets'
               ? 'bg-neutral-800 text-white'
               : 'text-neutral-500 hover:text-white hover:bg-neutral-900'
@@ -113,7 +113,7 @@ export default async function ProfilePage(props: { searchParams: Promise<{ tab?:
         </Link>
         <Link
           href="/profile?tab=favorites"
-          className={`flex items-center gap-2 px-4 py-2  transition-colors font-medium ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-colors font-medium ${
             tab === 'favorites'
               ? 'bg-red-500/10 text-red-400'
               : 'text-neutral-500 hover:text-white hover:bg-neutral-900'
@@ -136,8 +136,8 @@ export default async function ProfilePage(props: { searchParams: Promise<{ tab?:
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-neutral-800  bg-neutral-900/30">
-          <div className="w-16 h-16 bg-neutral-800  flex items-center justify-center mb-4">
+        <div className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-neutral-800 rounded-3xl bg-neutral-900/30">
+          <div className="w-16 h-16 bg-neutral-800 rounded-full flex items-center justify-center mb-4">
             {tab === 'snippets' ? (
               <FileCode2 className="w-8 h-8 text-neutral-500" />
             ) : (

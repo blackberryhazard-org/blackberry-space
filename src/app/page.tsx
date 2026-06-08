@@ -65,7 +65,7 @@ export default async function Home(props: { searchParams: Promise<{ q?: string; 
       </div>
 
       {error ? (
-        <div className="p-6 bg-red-500/10 border border-red-500/50  text-red-400">
+        <div className="p-6 bg-red-500/10 border border-red-500/50 rounded-2xl text-red-400">
            <p className="font-semibold mb-1">Error fetching snippets.</p>
            <p className="text-sm">Please make sure the &quot;snippets&quot; table exists and policies are configured correctly.</p>
            <pre className="mt-4 text-xs font-mono bg-black/30 p-2 rounded">{error.message}</pre>
@@ -82,13 +82,13 @@ export default async function Home(props: { searchParams: Promise<{ q?: string; 
           ))}
         </div>
       ) : (
-         <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-neutral-800  bg-neutral-900/50">
-            <div className="w-16 h-16 bg-neutral-800  flex items-center justify-center mb-4">
+         <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-neutral-800 rounded-2xl bg-neutral-900/50">
+            <div className="w-16 h-16 bg-neutral-800 rounded-full flex items-center justify-center mb-4">
               <Code className="w-8 h-8 text-neutral-500" />
             </div>
             <h3 className="text-xl font-bold text-white mb-2">No snippets yet</h3>
             <p className="text-neutral-400 max-w-sm mb-6">Be the first to share a piece of code with the community!</p>
-            <Link href="/snippets/new" className="btn-primary px-6 py-3 uppercase tracking-wider">
+            <Link href="/snippets/new" className="px-6 py-2.5 bg-white text-neutral-950 font-bold rounded-xl hover:bg-neutral-200 transition-colors">
               Create Snippet
             </Link>
          </div>
@@ -98,7 +98,7 @@ export default async function Home(props: { searchParams: Promise<{ q?: string; 
         <div className="flex items-center justify-center gap-2 mt-12">
           <Link
             href={`/?${new URLSearchParams({ ...(q ? { q } : {}), page: String(Math.max(1, currentPage - 1)) })}`}
-            className={`p-2  border border-neutral-800 transition-colors ${currentPage === 1 ? 'opacity-50 pointer-events-none' : 'hover:bg-neutral-800'}`}
+            className={`p-2 rounded-xl border border-neutral-800 transition-colors ${currentPage === 1 ? 'opacity-50 pointer-events-none' : 'hover:bg-neutral-800'}`}
           >
             <ChevronLeft className="w-5 h-5" />
           </Link>
@@ -107,7 +107,7 @@ export default async function Home(props: { searchParams: Promise<{ q?: string; 
           </span>
           <Link
             href={`/?${new URLSearchParams({ ...(q ? { q } : {}), page: String(Math.min(totalPages, currentPage + 1)) })}`}
-            className={`p-2  border border-neutral-800 transition-colors ${currentPage >= totalPages ? 'opacity-50 pointer-events-none' : 'hover:bg-neutral-800'}`}
+            className={`p-2 rounded-xl border border-neutral-800 transition-colors ${currentPage >= totalPages ? 'opacity-50 pointer-events-none' : 'hover:bg-neutral-800'}`}
           >
             <ChevronRight className="w-5 h-5" />
           </Link>
