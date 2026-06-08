@@ -68,12 +68,12 @@ export default function CreateSnippetPage() {
   return (
     <div className="max-w-3xl mx-auto pb-12">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Create Snippet</h1>
-        <p className="text-neutral-400 text-lg">Share your code with the Blackberry Space community.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-white mb-2 uppercase tracking-[0.05em]">Create Snippet</h1>
+        <p className="text-on-surface-variant text-lg">Share your code with the Blackberry Space community.</p>
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-400 font-medium">
+        <div className="mb-6 p-4 bg-[rgba(255,180,171,0.1)] border border-error text-error font-bold uppercase tracking-wider text-sm">
           {error}
         </div>
       )}
@@ -81,36 +81,36 @@ export default function CreateSnippetPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
            <div className="space-y-2 md:col-span-2">
-             <label htmlFor="title" className="block text-sm font-medium text-neutral-300">Title</label>
+             <label htmlFor="title" className="block text-sm font-bold text-on-surface uppercase tracking-wider">Title</label>
              <input
                type="text"
                name="title"
                id="title"
                required
                placeholder="e.g. React custom hook for responsive check"
-               className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all font-medium"
+               className="input-default w-full px-4 py-3"
              />
            </div>
 
            <div className="space-y-2 md:col-span-2">
-             <label htmlFor="description" className="block text-sm font-medium text-neutral-300">Description</label>
+             <label htmlFor="description" className="block text-sm font-bold text-on-surface uppercase tracking-wider">Description</label>
              <textarea
                name="description"
                id="description"
                rows={3}
                placeholder="Briefly explain what this code does..."
-               className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all resize-none"
+               className="input-default w-full px-4 py-3 resize-none"
              />
            </div>
 
            <div className="space-y-2">
-             <label htmlFor="language" className="block text-sm font-medium text-neutral-300">Language</label>
+             <label htmlFor="language" className="block text-sm font-bold text-on-surface uppercase tracking-wider">Language</label>
              <select
                name="language"
                id="language"
                required
                defaultValue=""
-               className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all appearance-none"
+               className="input-default w-full px-4 py-3 appearance-none"
              >
                <option value="" disabled>Select language...</option>
                {languages.sort().map(lang => (
@@ -120,36 +120,36 @@ export default function CreateSnippetPage() {
            </div>
 
            <div className="space-y-2">
-             <label htmlFor="tags" className="block text-sm font-medium text-neutral-300">Tags (comma separated)</label>
+             <label htmlFor="tags" className="block text-sm font-bold text-on-surface uppercase tracking-wider">Tags (comma separated)</label>
              <input
                type="text"
                name="tags"
                id="tags"
                placeholder="react, hooks, ui"
-               className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all"
+               className="input-default w-full px-4 py-3"
              />
            </div>
 
            <div className="space-y-2 md:col-span-2">
-             <label htmlFor="code" className="block text-sm font-medium text-neutral-300">Code</label>
+             <label htmlFor="code" className="block text-sm font-bold text-on-surface uppercase tracking-wider">Code</label>
              <textarea
                name="code"
                id="code"
                required
                rows={10}
                placeholder="Paste your code here..."
-               className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 text-neutral-300 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all font-mono text-sm leading-relaxed"
+               className="input-default w-full px-4 py-3 font-mono text-sm leading-relaxed"
              />
            </div>
 
            <div className="space-y-2 md:col-span-2">
-             <label htmlFor="credits" className="block text-sm font-medium text-neutral-300">Credits (Optional)</label>
+             <label htmlFor="credits" className="block text-sm font-bold text-on-surface uppercase tracking-wider">Credits (Optional)</label>
              <input
                type="text"
                name="credits"
                id="credits"
                placeholder="Original author or source link"
-               className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all"
+               className="input-default w-full px-4 py-3"
              />
            </div>
         </div>
@@ -158,7 +158,7 @@ export default function CreateSnippetPage() {
           <button
             type="submit"
             disabled={loading}
-            className="flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-8 py-3 rounded-xl font-medium transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
+            className="flex items-center gap-2 btn-primary px-8 py-3 text-sm uppercase tracking-wider disabled:opacity-50 disabled:pointer-events-none"
           >
             {loading && <Loader2 className="w-5 h-5 animate-spin" />}
             Publish Snippet
