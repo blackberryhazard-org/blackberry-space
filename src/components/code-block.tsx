@@ -16,6 +16,8 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
   const blockRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let ignore = false; // Memperbaiki penanganan race condition jika props berubah cepat
+
     async function highlightCode() {
       try {
         const { codeToHtml } = await import('shiki');
@@ -23,7 +25,9 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
           lang: language,
           theme: 'dark-plus',
         });
-        setHtmlCode(html);
+        if (!ignore) {
+          setHtmlCode(html);
+        }
       } catch (err) {
         console.error('Error highlighting code with shiki:', err);
         const escapeHtml = (text: string) => {
@@ -34,16 +38,26 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
         };
-        setHtmlCode(`<pre class="shiki dark-plus" style="background-color:#1E1E1E;color:#D4D4D4;" tabindex="0"><code>${escapeHtml(code)}</code></pre>`);
+        if (!ignore) {
+          setHtmlCode(`<pre class="shiki dark-plus" style="background-color:#1E1E1E;color:#D4D4D4;" tabindex="0"><code>${escapeHtml(code)}</code></pre>`);
+        }
       }
     }
+
     highlightCode();
+
+    return () => {
+      ignore = true;
+    };
   }, [code, language]);
 
   const handleExport = async () => {
     if (!blockRef.current) return;
     try {
       setIsExporting(true);
+      // Memberikan jeda mikro agar DOM sempat menyembunyikan tombol sebelum di-render ke gambar
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
       const dataUrl = await toPng(blockRef.current, {
         cacheBust: true,
         backgroundColor: '#1E1E1E',
@@ -59,16 +73,21 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
       link.click();
     } catch (err) {
       console.error('Error exporting image:', err);
-      alert('Failed to export image.');
+      alert('Gagal mengekspor gambar.');
     } finally {
       setIsExporting(false);
     }
   };
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Error copying text:', err);
+      alert('Gagal menyalin kode ke clipboard.');
+    }
   };
 
   return (
@@ -82,7 +101,8 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
         <div className="text-xs font-mono text-neutral-500 uppercase tracking-wider">
           {language}
         </div>
-                <div className="flex items-center gap-3">
+        {/* Menyembunyikan tombol secara visual saat proses export agar tidak ikut masuk ke dalam gambar */}
+        <div className={`flex items-center gap-3 transition-opacity duration-150 ${isExporting ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
           <button
             onClick={handleExport}
             disabled={isExporting}
@@ -108,8 +128,8 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
             dangerouslySetInnerHTML={{ __html: htmlCode }}
             className="
               [&>pre]:!bg-transparent [&>pre]:!p-0 [&>pre]:!m-0 [&>pre]:!text-[0.875rem]
-              [&>pre>code]:counter-reset-line
-              [&>pre>code>.line]:before:counter-increment-line
+              [&>pre>code]:[counter-reset:line]
+              [&>pre>code>.line]:before:[counter-increment:line]
               [&>pre>code>.line]:before:content-[counter(line)]
               [&>pre>code>.line]:before:inline-block
               [&>pre>code>.line]:before:w-6
