@@ -13,9 +13,7 @@ export function Sidebar() {
   const supabase = createClient();
 
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
-    'Home': true,
     'Snippets': true,
-    'Challenges': false,
   });
 
   useEffect(() => {
@@ -53,13 +51,6 @@ export function Sidebar() {
 
   const menus = [
     {
-      title: 'Main',
-      icon: Home,
-      subItems: [
-        { name: 'Home', href: 'https://blackberryhazard.pages.dev', icon: Home, external: true },
-      ]
-    },
-    {
       title: 'Snippets',
       icon: FileCode2,
       subItems: [
@@ -77,17 +68,29 @@ export function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 h-screen border-r border-[rgba(255,255,255,0.05)] bg-[#121212] flex-shrink-0 hidden md:flex flex-col">
+    <aside className="w-64 h-screen border-r border-neutral-800 bg-neutral-950 flex-shrink-0 hidden md:flex flex-col">
       <div className="p-6">
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 bg-primary flex items-center justify-center group-hover:brightness-110 transition-all shadow-[0_0_10px_rgba(74,222,128,0.3)]">
-            <CodeSquare className="w-5 h-5 text-[#121212]" />
+          <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center group-hover:bg-red-500 transition-colors">
+            <CodeSquare className="w-5 h-5 text-white" />
           </div>
-          <span className="text-xl font-bold tracking-tight text-white group-hover:text-primary transition-colors uppercase tracking-[0.05em]">Blackberry</span>
+          <span className="text-xl font-bold tracking-tight text-white group-hover:text-red-500 transition-colors">Blackberry</span>
         </Link>
       </div>
 
-      <nav className="flex-1 px-4 mt-2 overflow-y-auto custom-scrollbar">
+      <nav className="flex-1 px-4 mt-2 overflow-y-auto">
+        <div className="space-y-1 mb-6">
+          <a
+            href="https://blackberryhazard.pages.dev"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-neutral-400 hover:text-white hover:bg-neutral-900"
+          >
+            <Home className="w-5 h-5" />
+            <span className="font-medium">Home</span>
+          </a>
+        </div>
+
         <div className="space-y-6">
           {menus.map(menu => {
             const isOpen = openMenus[menu.title];
@@ -95,7 +98,7 @@ export function Sidebar() {
               <div key={menu.title}>
                 <button
                   onClick={() => toggleMenu(menu.title)}
-                  className="w-full px-3 mb-2 flex items-center justify-between text-on-surface-variant hover:text-white transition-colors"
+                  className="w-full px-3 mb-2 flex items-center justify-between text-neutral-500 hover:text-neutral-300 transition-colors"
                 >
                   <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
                     <menu.icon className="w-4 h-4" />
@@ -105,39 +108,21 @@ export function Sidebar() {
                 </button>
 
                 {isOpen && (
-                  <div className="space-y-1 pl-3 border-l border-[rgba(255,255,255,0.05)] ml-5">
+                  <div className="space-y-1 pl-3 border-l border-neutral-800 ml-5">
                     {menu.subItems.map((item) => {
-                      const isActive = !("external" in item) && ((item.name === 'Discover' && pathname === '/') ||
-                                       (item.name !== 'Discover' && pathname === item.href));
-
-                      const linkClasses = `flex items-center gap-3 px-3 py-2 transition-colors text-sm ${
-                        isActive
-                          ? 'bg-[#1a120c] text-primary border border-primary shadow-[0_0_5px_rgba(74,222,128,0.2)]'
-                          : 'text-on-surface hover:text-primary hover:bg-[#1a120c]'
-                      }`;
-
-                      if ("external" in item) {
-                         return (
-                           <a
-                             key={item.name}
-                             href={item.href}
-                             target="_blank"
-                             rel="noopener noreferrer"
-                             className={linkClasses}
-                           >
-                             <item.icon className="w-4 h-4" />
-                             <span className="font-medium">{item.name}</span>
-                           </a>
-                         )
-                      }
-
+                      const isActive = (item.name === 'Discover' && pathname === '/') ||
+                                       (item.name !== 'Discover' && pathname === item.href);
                       return (
                         <Link
                           key={item.name}
                           href={item.href}
-                          className={linkClasses}
+                          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm ${
+                            isActive
+                              ? 'bg-neutral-800/50 text-red-500'
+                              : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+                          }`}
                         >
-                          <item.icon className={`w-4 h-4 ${isActive ? 'text-primary' : ''}`} />
+                          <item.icon className={`w-4 h-4 ${isActive ? 'text-red-500' : ''}`} />
                           <span className="font-medium">{item.name}</span>
                         </Link>
                       );
@@ -150,29 +135,29 @@ export function Sidebar() {
         </div>
       </nav>
 
-      <div className="p-4 border-t border-[rgba(255,255,255,0.05)]">
+      <div className="p-4 border-t border-neutral-800">
         {user ? (
           <div className="flex flex-col gap-3">
-             <Link href="/profile" className="flex items-center gap-3 px-2 py-2 hover:bg-[#1a120c] transition-colors group">
+             <Link href="/profile" className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-neutral-900 transition-colors group">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={user.user_metadata.avatar_url || 'https://picsum.photos/seed/picsum/200/200'} alt="Avatar" className="w-9 h-9 bg-surface-container" />
+                <img src={user.user_metadata.avatar_url || 'https://picsum.photos/seed/picsum/200/200'} alt="Avatar" className="w-9 h-9 rounded-full bg-neutral-800" />
                 <div className="flex flex-col overflow-hidden">
-                  <span className="text-sm font-bold text-white truncate group-hover:text-primary transition-colors">{user.user_metadata.full_name || user.email}</span>
-                  <span className="text-xs text-on-surface-variant truncate uppercase tracking-wider">{user.user_metadata.user_name || 'Developer'}</span>
+                  <span className="text-sm font-medium text-white truncate group-hover:text-red-400 transition-colors">{user.user_metadata.full_name || user.email}</span>
+                  <span className="text-xs text-neutral-500 truncate">{user.user_metadata.user_name || 'Developer'}</span>
                 </div>
              </Link>
              <button
               onClick={handleLogout}
-              className="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-error hover:bg-[#1a120c] transition-colors w-full text-left font-medium text-sm"
+              className="flex items-center gap-3 px-3 py-2 text-neutral-400 hover:text-red-400 hover:bg-neutral-900 rounded-lg transition-colors w-full text-left"
             >
               <LogOut className="w-5 h-5" />
-              <span>Logout</span>
+              <span className="font-medium text-sm">Logout</span>
             </button>
           </div>
         ) : (
           <button
             onClick={handleLogin}
-            className="flex items-center justify-center gap-2 w-full btn-primary py-2 text-sm uppercase tracking-wider"
+            className="flex items-center justify-center gap-2 w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition-colors text-sm font-medium"
           >
             <LogIn className="w-4 h-4" />
             Login with GitHub

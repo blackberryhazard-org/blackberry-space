@@ -91,12 +91,12 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
   };
 
   return (
-    <div ref={blockRef} className=" overflow-hidden bg-[#1E1E1E] border border-neutral-800 shadow-xl">
+    <div ref={blockRef} className="rounded-xl overflow-hidden bg-[#1E1E1E] border border-neutral-800 shadow-xl">
       <div className="flex items-center justify-between px-4 py-3 bg-neutral-900 border-b border-neutral-800">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3  bg-red-500" />
-          <div className="w-3 h-3  bg-yellow-500" />
-          <div className="w-3 h-3  bg-green-500" />
+          <div className="w-3 h-3 rounded-full bg-red-500" />
+          <div className="w-3 h-3 rounded-full bg-yellow-500" />
+          <div className="w-3 h-3 rounded-full bg-green-500" />
         </div>
         <div className="text-xs font-mono text-neutral-500 uppercase tracking-wider">
           {language}
