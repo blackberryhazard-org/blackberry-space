@@ -98,7 +98,7 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
   };
 
   return (
-    <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden flex flex-col group">
+    <div className="bg-neutral-900 border border-neutral-800  overflow-hidden flex flex-col group">
       <div className="p-5 flex flex-col gap-4">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -113,7 +113,7 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
           <div className="flex items-center gap-1">
             <button
               onClick={handleShare}
-              className="p-2 rounded-xl transition-all hover:bg-neutral-800 text-neutral-500 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
+              className="p-2  transition-all hover:bg-neutral-800 text-neutral-500 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
               title="Share snippet"
               aria-label="Share snippet link"
             >
@@ -123,7 +123,7 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
               <>
                 <Link
                   href={`/snippets/${snippet.id}/edit`}
-                  className="p-2 rounded-xl transition-all hover:bg-neutral-800 text-neutral-500 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                  className="p-2  transition-all hover:bg-neutral-800 text-neutral-500 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                   title="Edit snippet"
                   aria-label="Edit snippet"
                 >
@@ -132,7 +132,7 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
                 <button
                   onClick={handleDelete}
                   disabled={isDeleting}
-                  className={`p-2 rounded-xl transition-all hover:bg-neutral-800 text-neutral-500 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`p-2  transition-all hover:bg-neutral-800 text-neutral-500 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
                   title="Delete snippet"
                   aria-label="Delete snippet"
                 >
@@ -143,7 +143,7 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
             <button
               onClick={handleFavorite}
               disabled={!currentUser || isToggling}
-              className={`p-2 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 ${!currentUser ? 'opacity-50 cursor-not-allowed' : 'hover:bg-neutral-800 active:scale-95'} ${isToggling ? 'opacity-60 cursor-wait' : ''}`}
+              className={`p-2  transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 ${!currentUser ? 'opacity-50 cursor-not-allowed' : 'hover:bg-neutral-800 active:scale-95'} ${isToggling ? 'opacity-60 cursor-wait' : ''}`}
               title={!currentUser ? "Login to favorite" : localFavorited ? "Remove from favorites" : "Add to favorites"}
               aria-label={localFavorited ? "Remove from favorites" : "Add to favorites"}
             >
@@ -153,11 +153,11 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="px-2.5 py-1 rounded-md bg-neutral-800 text-neutral-300 text-xs font-mono font-medium">
+          <span className="px-2.5 py-1  bg-neutral-800 text-neutral-300 text-xs font-mono font-medium">
             {snippet.language}
           </span>
           {snippet.tags && snippet.tags.map(tag => (
-            <span key={tag} className="px-2.5 py-1 rounded-md bg-red-950/30 text-red-400 border border-red-900/30 text-xs font-medium">
+            <span key={tag} className="px-2.5 py-1  bg-red-950/30 text-red-400 border border-red-900/30 text-xs font-medium">
               #{tag}
             </span>
           ))}
@@ -168,7 +168,7 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
 
        <div className="p-4 bg-neutral-950 border-t border-neutral-800 flex items-center justify-between">
            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-neutral-800 overflow-hidden border border-neutral-700">
+              <div className="w-6 h-6  bg-neutral-800 overflow-hidden border border-neutral-700">
                 {snippet.profiles?.avatar_url && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={snippet.profiles.avatar_url} alt="avatar" className="w-full h-full object-cover" />
