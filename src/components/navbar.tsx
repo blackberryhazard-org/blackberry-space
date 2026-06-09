@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Home, PlusSquare, CodeSquare, Menu, X, LogIn, LogOut, Compass, FileCode2, Swords } from 'lucide-react';
+import { Home, PlusSquare, CodeSquare, Menu, X, LogIn, LogOut, Compass, FileCode2, Swords, ChevronDown } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
@@ -48,12 +48,7 @@ export function Navbar() {
     return () => window.removeEventListener('resize', handleResize);
   }, [isOpen]);
 
-  const handleLogin = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: 'github',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
-  };
+
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -61,8 +56,6 @@ export function Navbar() {
 
   const menus = [
     { name: 'Home', href: 'https://blackberryhazard.pages.dev', icon: Home, external: true },
-    { name: 'Discover', href: '/', icon: Compass },
-    { name: 'Create Snippet', href: '/snippets/new', icon: PlusSquare },
     { name: 'Challenges', href: '/coming-soon', icon: Swords },
   ];
 
@@ -116,13 +109,13 @@ export function Navbar() {
                  </button>
                </div>
             ) : (
-                <button
-                  onClick={handleLogin}
+                <Link
+                  href="/login"
                   className="flex items-center justify-center gap-2 btn-primary px-4 py-2 text-xs uppercase tracking-wider"
                 >
                   <LogIn className="w-4 h-4" />
                   Login
-                </button>
+                </Link>
             )}
           </div>
 
@@ -150,6 +143,22 @@ export function Navbar() {
         </div>
 
         <nav className="p-4 flex-1 space-y-2 overflow-y-auto">
+          {/* Mobile Snippets Submenu */}
+          <div className="space-y-2">
+            <div className="px-3 py-2 text-xs font-bold text-neutral-500 uppercase tracking-wider flex items-center gap-2">
+              <FileCode2 className="w-4 h-4" />
+              Snippets
+            </div>
+            <Link href="/" onClick={() => setIsOpen(false)} className={`flex items-center gap-3 px-3 py-3 pl-8 transition-colors text-sm uppercase tracking-wider font-bold ${pathname === '/' ? 'bg-[#1a120c] text-primary border border-primary shadow-[0_0_5px_rgba(74,222,128,0.2)]' : 'text-on-surface active:bg-[#1a120c] hover:text-primary'}`}>
+              <Compass className="w-5 h-5" />
+              Discover
+            </Link>
+            <Link href="/snippets/new" onClick={() => setIsOpen(false)} className={`flex items-center gap-3 px-3 py-3 pl-8 transition-colors text-sm uppercase tracking-wider font-bold ${pathname === '/snippets/new' ? 'bg-[#1a120c] text-primary border border-primary shadow-[0_0_5px_rgba(74,222,128,0.2)]' : 'text-on-surface active:bg-[#1a120c] hover:text-primary'}`}>
+              <PlusSquare className="w-5 h-5" />
+              Create
+            </Link>
+          </div>
+
           {menus.map((item) => {
             const isActive = !item.external && ((item.name === 'Discover' && pathname === '/') ||
                              (item.name !== 'Discover' && pathname === item.href));
@@ -198,13 +207,14 @@ export function Navbar() {
               </button>
             </div>
           ) : (
-              <button
-                onClick={() => { handleLogin(); setIsOpen(false); }}
+              <Link
+                href="/login"
+                onClick={() => setIsOpen(false)}
                 className="flex items-center justify-center gap-2 w-full btn-primary py-3 text-sm uppercase tracking-wider"
               >
                 <LogIn className="w-4 h-4" />
-                Login with GitHub
-              </button>
+                Login
+              </Link>
           )}
         </div>
       </aside>
