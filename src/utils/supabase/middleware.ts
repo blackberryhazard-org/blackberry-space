@@ -42,7 +42,25 @@ export const updateSession = async (request: NextRequest) => {
   );
 
   // refreshing the auth token
-  await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // Redirect to login if user is not authenticated and trying to access protected routes
+  const isAuthRoute = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/auth/callback');
+
+  if (!user && !isAuthRoute) {
+    // Note: User's requirement says "mengharuskan guest untuk login terlebih dahulu agar bisa mengakses seluruh konten"
+    // So we protect everything except auth routes.
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = '/login';
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  // If user is logged in but tries to access login page, redirect to home
+  if (user && request.nextUrl.pathname === '/login') {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = '/';
+    return NextResponse.redirect(redirectUrl);
+  }
 
   return supabaseResponse
 };
