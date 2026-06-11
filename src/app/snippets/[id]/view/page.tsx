@@ -12,7 +12,9 @@ export default async function SnippetViewPage(props: { params: Promise<{ id: str
   const id = params.id;
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const { data: snippet, error } = await supabase
     .from('snippets')
@@ -46,18 +48,14 @@ export default async function SnippetViewPage(props: { params: Promise<{ id: str
       <div className="mb-6">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-sm text-neutral-400 hover:text-white transition-colors"
+          className="inline-flex items-center gap-2 text-sm text-on-surface-variant hover:text-on-surface transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Discover
         </Link>
       </div>
 
-            <SnippetCard
-        snippet={snippet}
-        currentUser={user}
-        isFavorited={isFavorited}
-      />
+      <SnippetCard snippet={snippet} currentUser={user} isFavorited={isFavorited} />
       <div className="mt-8">
         <CodeBlock code={snippet.code} language={snippet.language} />
       </div>

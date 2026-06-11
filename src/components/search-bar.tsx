@@ -8,7 +8,7 @@ export function SearchBar() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get('q') || '');
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -26,14 +26,17 @@ export function SearchBar() {
 
   return (
     <div className="relative w-full md:w-72">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" aria-hidden="true" />
+      <Search
+        className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant"
+        aria-hidden="true"
+      />
       <input
         type="search"
         aria-label="Search snippets"
         placeholder="Search snippets..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="w-full bg-neutral-900 border border-neutral-800  pl-10 pr-4 py-2.5 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all font-medium text-sm"
+        className="input-default w-full pl-10 pr-4 py-2.5 placeholder-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all font-medium text-sm"
       />
     </div>
   );

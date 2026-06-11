@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Heart, Edit, Trash2, Share2, Check } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
@@ -21,7 +21,7 @@ interface Snippet {
     full_name: string;
     avatar_url: string;
     username: string;
-  }
+  };
 }
 
 interface SnippetCardProps {
@@ -31,15 +31,19 @@ interface SnippetCardProps {
   onToggleFavorite?: (id: string, currentlyFavorited: boolean) => void;
 }
 
-export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggleFavorite }: SnippetCardProps) {
-    const [localFavorited, setLocalFavorited] = useState(isFavorited);
+export function SnippetCard({
+  snippet,
+  currentUser,
+  isFavorited = false,
+  onToggleFavorite,
+}: SnippetCardProps) {
+  const [localFavorited, setLocalFavorited] = useState(isFavorited);
   const [isToggling, setIsToggling] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [shared, setShared] = useState(false);
 
   const supabase = createClient();
   const router = useRouter();
-
 
   const handleShare = async () => {
     const url = `${window.location.origin}/snippets/${snippet.id}/view`;
@@ -51,7 +55,9 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
   const handleDelete = async () => {
     if (isDeleting || !currentUser || currentUser.id !== snippet.user_id) return;
 
-    if (window.confirm('Are you sure you want to delete this snippet? This action cannot be undone.')) {
+    if (
+      window.confirm('Are you sure you want to delete this snippet? This action cannot be undone.')
+    ) {
       setIsDeleting(true);
       try {
         // SECURITY ENHANCEMENT: Defense in depth to prevent IDOR
@@ -72,7 +78,6 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
     }
   };
 
-
   const handleFavorite = async () => {
     if (!currentUser || isToggling) return;
 
@@ -83,8 +88,14 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
 
     try {
       const { error } = next
-        ? await supabase.from('favorites').insert({ snippet_id: snippet.id, user_id: currentUser.id })
-        : await supabase.from('favorites').delete().eq('snippet_id', snippet.id).eq('user_id', currentUser.id);
+        ? await supabase
+            .from('favorites')
+            .insert({ snippet_id: snippet.id, user_id: currentUser.id })
+        : await supabase
+            .from('favorites')
+            .delete()
+            .eq('snippet_id', snippet.id)
+            .eq('user_id', currentUser.id);
 
       if (error) throw error;
       router.refresh();
@@ -98,41 +109,47 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
   };
 
   return (
-    <div className="bg-neutral-900 border border-neutral-800  overflow-hidden flex flex-col group">
+    <div className="card-container overflow-hidden flex flex-col group">
       <div className="p-5 flex flex-col gap-4">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="text-xl font-bold text-white">
-              {snippet.title}
-            </h3>
+            <h3 className="text-xl font-bold text-on-surface tracking-tight">{snippet.title}</h3>
             {snippet.description && (
-              <p className="text-sm text-neutral-400 mt-1 line-clamp-2">{snippet.description}</p>
+              <p className="text-sm text-on-surface-variant mt-1 line-clamp-2 leading-relaxed">
+                {snippet.description}
+              </p>
             )}
           </div>
 
           <div className="flex items-center gap-1">
             <button
+              type="button"
               onClick={handleShare}
-              className="p-2  transition-all hover:bg-neutral-800 text-neutral-500 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
+              className="p-2 transition-all hover:bg-[rgba(255,255,255,0.05)] text-outline hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               title="Share snippet"
               aria-label="Share snippet link"
             >
-              {shared ? <Check className="w-5 h-5 text-green-500" aria-hidden="true" /> : <Share2 className="w-5 h-5" aria-hidden="true" />}
+              {shared ? (
+                <Check className="w-5 h-5 text-primary" aria-hidden="true" />
+              ) : (
+                <Share2 className="w-5 h-5" aria-hidden="true" />
+              )}
             </button>
             {currentUser && currentUser.id === snippet.user_id && (
               <>
                 <Link
                   href={`/snippets/${snippet.id}/edit`}
-                  className="p-2  transition-all hover:bg-neutral-800 text-neutral-500 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                  className="p-2 transition-all hover:bg-[rgba(255,255,255,0.05)] text-outline hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   title="Edit snippet"
                   aria-label="Edit snippet"
                 >
                   <Edit className="w-5 h-5" aria-hidden="true" />
                 </Link>
                 <button
+                  type="button"
                   onClick={handleDelete}
                   disabled={isDeleting}
-                  className={`p-2  transition-all hover:bg-neutral-800 text-neutral-500 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`p-2 transition-all hover:bg-[rgba(255,255,255,0.05)] text-outline hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
                   title="Delete snippet"
                   aria-label="Delete snippet"
                 >
@@ -141,48 +158,63 @@ export function SnippetCard({ snippet, currentUser, isFavorited = false, onToggl
               </>
             )}
             <button
+              type="button"
               onClick={handleFavorite}
               disabled={!currentUser || isToggling}
-              className={`p-2  transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 ${!currentUser ? 'opacity-50 cursor-not-allowed' : 'hover:bg-neutral-800 active:scale-95'} ${isToggling ? 'opacity-60 cursor-wait' : ''}`}
-              title={!currentUser ? "Login to favorite" : localFavorited ? "Remove from favorites" : "Add to favorites"}
-              aria-label={localFavorited ? "Remove from favorites" : "Add to favorites"}
+              className={`p-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${!currentUser ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[rgba(255,255,255,0.05)] active:scale-95'} ${isToggling ? 'opacity-60 cursor-wait' : ''}`}
+              title={
+                !currentUser
+                  ? 'Login to favorite'
+                  : localFavorited
+                    ? 'Remove from favorites'
+                    : 'Add to favorites'
+              }
+              aria-label={localFavorited ? 'Remove from favorites' : 'Add to favorites'}
             >
-              <Heart className={`w-5 h-5 ${localFavorited ? 'fill-red-500 text-red-500' : 'text-neutral-500'}`} aria-hidden="true" />
+              <Heart
+                className={`w-5 h-5 ${localFavorited ? 'fill-primary text-primary' : 'text-outline'}`}
+                aria-hidden="true"
+              />
             </button>
           </div>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="px-2.5 py-1  bg-neutral-800 text-neutral-300 text-xs font-mono font-medium">
+          <span className="px-2.5 py-1 bg-surface-container-high text-on-surface text-xs font-mono font-bold uppercase tracking-wider border border-[rgba(255,255,255,0.1)]">
             {snippet.language}
           </span>
-          {snippet.tags && snippet.tags.map(tag => (
-            <span key={tag} className="px-2.5 py-1  bg-red-950/30 text-red-400 border border-red-900/30 text-xs font-medium">
+          {snippet.tags?.map((tag) => (
+            <span
+              key={tag}
+              className="px-2.5 py-1 bg-[rgba(107,251,154,0.1)] text-primary border border-primary text-xs font-bold uppercase tracking-wider"
+            >
               #{tag}
             </span>
           ))}
         </div>
       </div>
 
+      <div className="p-4 bg-background border-t border-[rgba(255,255,255,0.05)] flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 bg-surface-container overflow-hidden border border-[rgba(255,255,255,0.1)]">
+            {snippet.profiles?.avatar_url && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={snippet.profiles.avatar_url}
+                alt="avatar"
+                className="w-full h-full object-cover"
+              />
+            )}
+          </div>
+          <span className="text-sm font-bold text-on-surface-variant uppercase tracking-wider">
+            {snippet.profiles?.full_name || snippet.profiles?.username || 'Unknown Developer'}
+          </span>
+        </div>
 
-
-       <div className="p-4 bg-neutral-950 border-t border-neutral-800 flex items-center justify-between">
-           <div className="flex items-center gap-2">
-              <div className="w-6 h-6  bg-neutral-800 overflow-hidden border border-neutral-700">
-                {snippet.profiles?.avatar_url && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={snippet.profiles.avatar_url} alt="avatar" className="w-full h-full object-cover" />
-                )}
-              </div>
-              <span className="text-sm text-neutral-400">
-                {snippet.profiles?.full_name || snippet.profiles?.username || 'Unknown Developer'}
-              </span>
-           </div>
-           
-           <span className="text-xs text-neutral-500">
-              {formatDistanceToNow(new Date(snippet.created_at), { addSuffix: true })}
-           </span>
-       </div>
+        <span className="text-xs text-outline uppercase tracking-wider">
+          {formatDistanceToNow(new Date(snippet.created_at), { addSuffix: true })}
+        </span>
+      </div>
     </div>
   );
 }

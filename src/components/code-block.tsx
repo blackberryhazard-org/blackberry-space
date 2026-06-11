@@ -32,14 +32,16 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
         console.error('Error highlighting code with shiki:', err);
         const escapeHtml = (text: string) => {
           return text
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
         };
         if (!ignore) {
-          setHtmlCode(`<pre class="shiki dark-plus" style="background-color:#1E1E1E;color:#D4D4D4;" tabindex="0"><code>${escapeHtml(code)}</code></pre>`);
+          setHtmlCode(
+            `<pre class="shiki dark-plus" style="background-color:transparent;color:#D4D4D4;" tabindex="0"><code>${escapeHtml(code)}</code></pre>`,
+          );
         }
       }
     }
@@ -60,12 +62,11 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
 
       const dataUrl = await toPng(blockRef.current, {
         cacheBust: true,
-        backgroundColor: '#1E1E1E',
+        backgroundColor: '#09100a',
         style: {
           margin: '0',
-          borderRadius: '12px',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2)'
-        }
+          borderRadius: '0',
+        },
       });
       const link = document.createElement('a');
       link.download = `snippet-${language}.png`;
@@ -91,38 +92,53 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
   };
 
   return (
-    <div ref={blockRef} className=" overflow-hidden bg-[#1E1E1E] border border-neutral-800 shadow-xl">
-      <div className="flex items-center justify-between px-4 py-3 bg-neutral-900 border-b border-neutral-800">
+    <div
+      ref={blockRef}
+      className="overflow-hidden bg-surface-container-lowest border border-outline-variant"
+    >
+      <div className="flex items-center justify-between px-4 py-3 bg-surface-container border-b border-outline-variant">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3  bg-red-500" />
-          <div className="w-3 h-3  bg-yellow-500" />
-          <div className="w-3 h-3  bg-green-500" />
+          <div className="w-3 h-3 bg-outline-variant" />
+          <div className="w-3 h-3 bg-outline-variant" />
+          <div className="w-3 h-3 bg-outline-variant" />
         </div>
-        <div className="text-xs font-mono text-neutral-500 uppercase tracking-wider">
+        <div className="text-xs font-mono text-on-surface-variant uppercase tracking-wider">
           {language}
         </div>
         {/* Menyembunyikan tombol secara visual saat proses export agar tidak ikut masuk ke dalam gambar */}
-        <div className={`flex items-center gap-3 transition-opacity duration-150 ${isExporting ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+        <div
+          className={`flex items-center gap-3 transition-opacity duration-150 ${isExporting ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+        >
           <button
+            type="button"
             onClick={handleExport}
             disabled={isExporting}
-            className="text-neutral-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 rounded disabled:opacity-50"
+            className="text-on-surface-variant hover:text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
             aria-label="Export code as image"
             title="Export code as image"
           >
-            {isExporting ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <Download className="w-4 h-4" aria-hidden="true" />}
+            {isExporting ? (
+              <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <Download className="w-4 h-4" aria-hidden="true" />
+            )}
           </button>
           <button
+            type="button"
             onClick={handleCopy}
-            className="text-neutral-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 rounded"
+            className="text-on-surface-variant hover:text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             aria-label="Copy code"
             title="Copy code"
           >
-            {copied ? <Check className="w-4 h-4 text-green-500" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
+            {copied ? (
+              <Check className="w-4 h-4 text-primary" aria-hidden="true" />
+            ) : (
+              <Copy className="w-4 h-4" aria-hidden="true" />
+            )}
           </button>
         </div>
       </div>
-      <div className="p-4 overflow-auto custom-scrollbar font-mono text-sm leading-relaxed max-h-[600px] bg-[#1E1E1E]">
+      <div className="p-4 overflow-auto custom-scrollbar font-mono text-sm leading-relaxed max-h-[600px] bg-surface-container-lowest">
         {htmlCode ? (
           <div
             dangerouslySetInnerHTML={{ __html: htmlCode }}
@@ -135,12 +151,12 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
               [&>pre>code>.line]:before:w-6
               [&>pre>code>.line]:before:mr-4
               [&>pre>code>.line]:before:text-right
-              [&>pre>code>.line]:before:text-neutral-600
+              [&>pre>code>.line]:before:text-outline-variant
               [&>pre>code>.line]:before:select-none
             "
           />
         ) : (
-          <pre className="text-neutral-400 animate-pulse">Loading code...</pre>
+          <pre className="text-on-surface-variant animate-pulse">Loading code...</pre>
         )}
       </div>
     </div>

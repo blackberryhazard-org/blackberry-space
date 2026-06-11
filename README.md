@@ -2,11 +2,11 @@
 
 A platform for developers to share code snippets and solve programming challenges.
 
-Built with **Next.js 15 (App Router)**, **Supabase** (GitHub OAuth + Postgres), and **Tailwind CSS**.
+Built with **Next.js 16 (App Router)**, **Supabase** (GitHub & Discord OAuth + Postgres), and **Tailwind CSS**.
 
 ## Run Locally
 
-**Prerequisites:** Node.js 18+ and a [Supabase](https://supabase.com) project.
+**Prerequisites:** Node.js 20+ and a [Supabase](https://supabase.com) project.
 
 1. Install dependencies:
    ```bash

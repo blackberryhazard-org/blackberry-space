@@ -1,12 +1,15 @@
 {
-  "name": "ai-studio-applet",
+  "name": "blackberry-space",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint .",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "check": "biome check --write .",
+    "lint:next": "eslint .",
     "clean": "next clean"
   },
   "dependencies": {
@@ -29,6 +32,7 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.4.16",
     "@tailwindcss/postcss": "4.1.11",
     "@tailwindcss/typography": "^0.5.19",
     "@types/node": "^20",
