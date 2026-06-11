@@ -1,5 +1,4 @@
 import { createClient } from '@/utils/supabase/server';
-import { SnippetCard } from '@/components/snippet-card';
 import { SnippetCardCompact } from '@/components/snippet-card-compact';
 import { Code } from 'lucide-react';
 import Link from 'next/link';
@@ -8,7 +7,9 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export const revalidate = 0; // Disable full page caching to always show latest snippets/auth state
 
-export default async function Home(props: { searchParams: Promise<{ q?: string; page?: string }> }) {
+export default async function Home(props: {
+  searchParams: Promise<{ q?: string; page?: string }>;
+}) {
   const searchParams = await props.searchParams;
   const q = searchParams?.q || '';
   const currentPage = Number(searchParams?.page) || 1;
@@ -17,15 +18,20 @@ export default async function Home(props: { searchParams: Promise<{ q?: string; 
   const to = from + itemsPerPage - 1;
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   // Fetch snippets
-    let query = supabase
+  let query = supabase
     .from('snippets')
-    .select(`
+    .select(
+      `
       *,
       profiles ( full_name, avatar_url, username )
-    `, { count: 'exact' })
+    `,
+      { count: 'exact' },
+    )
     .order('created_at', { ascending: false })
     .range(from, to);
 
@@ -42,15 +48,15 @@ export default async function Home(props: { searchParams: Promise<{ q?: string; 
   const totalPages = count ? Math.ceil(count / itemsPerPage) : 0;
 
   // Fetch user favorites if logged in
-  let favoritedSnippetIds = new Set<string>();
+  const favoritedSnippetIds = new Set<string>();
   if (user) {
     const { data: favorites } = await supabase
       .from('favorites')
       .select('snippet_id')
       .eq('user_id', user.id);
-      
+
     if (favorites) {
-      favorites.forEach(f => favoritedSnippetIds.add(f.snippet_id));
+      favorites.forEach((f) => favoritedSnippetIds.add(f.snippet_id));
     }
   }
 
@@ -58,17 +64,26 @@ export default async function Home(props: { searchParams: Promise<{ q?: string; 
     <div className="pb-12">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Discover Snippets</h1>
-          <p className="text-neutral-400 text-lg">Explore code shared by the Blackberry Space community.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-on-surface mb-2">
+            Discover Snippets
+          </h1>
+          <p className="text-on-surface-variant text-lg">
+            Explore code shared by the Blackberry Space community.
+          </p>
         </div>
         <SearchBar />
       </div>
 
       {error ? (
-        <div className="p-6 bg-red-500/10 border border-red-500/50  text-red-400">
-           <p className="font-semibold mb-1">Error fetching snippets.</p>
-           <p className="text-sm">Please make sure the &quot;snippets&quot; table exists and policies are configured correctly.</p>
-           <pre className="mt-4 text-xs font-mono bg-black/30 p-2 rounded">{error.message}</pre>
+        <div className="p-6 bg-[rgba(255,180,171,0.1)] border border-error text-error">
+          <p className="font-semibold mb-1">Error fetching snippets.</p>
+          <p className="text-sm">
+            Please make sure the &quot;snippets&quot; table exists and policies are configured
+            correctly.
+          </p>
+          <pre className="mt-4 text-xs font-mono bg-surface-container-lowest p-2">
+            {error.message}
+          </pre>
         </div>
       ) : snippets && snippets.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -82,32 +97,34 @@ export default async function Home(props: { searchParams: Promise<{ q?: string; 
           ))}
         </div>
       ) : (
-         <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-neutral-800  bg-neutral-900/50">
-            <div className="w-16 h-16 bg-neutral-800  flex items-center justify-center mb-4">
-              <Code className="w-8 h-8 text-neutral-500" />
-            </div>
-            <h3 className="text-xl font-bold text-white mb-2">No snippets yet</h3>
-            <p className="text-neutral-400 max-w-sm mb-6">Be the first to share a piece of code with the community!</p>
-            <Link href="/snippets/new" className="btn-primary px-6 py-3 uppercase tracking-wider">
-              Create Snippet
-            </Link>
-         </div>
+        <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-outline-variant bg-surface-container/50">
+          <div className="w-16 h-16 bg-surface-container-high flex items-center justify-center mb-4">
+            <Code className="w-8 h-8 text-on-surface-variant" />
+          </div>
+          <h3 className="text-xl font-bold text-on-surface mb-2">No snippets yet</h3>
+          <p className="text-on-surface-variant max-w-sm mb-6">
+            Be the first to share a piece of code with the community!
+          </p>
+          <Link href="/snippets/new" className="btn-primary px-6 py-3 uppercase tracking-wider">
+            Create Snippet
+          </Link>
+        </div>
       )}
 
       {snippets && snippets.length > 0 && totalPages > 1 && (
         <div className="flex items-center justify-center gap-2 mt-12">
           <Link
             href={`/?${new URLSearchParams({ ...(q ? { q } : {}), page: String(Math.max(1, currentPage - 1)) })}`}
-            className={`p-2  border border-neutral-800 transition-colors ${currentPage === 1 ? 'opacity-50 pointer-events-none' : 'hover:bg-neutral-800'}`}
+            className={`p-2 border border-outline-variant transition-colors ${currentPage === 1 ? 'opacity-50 pointer-events-none' : 'hover:bg-surface-container-high'}`}
           >
             <ChevronLeft className="w-5 h-5" />
           </Link>
-          <span className="text-neutral-400 font-medium px-4">
+          <span className="text-on-surface-variant font-medium px-4">
             Page {currentPage} of {totalPages}
           </span>
           <Link
             href={`/?${new URLSearchParams({ ...(q ? { q } : {}), page: String(Math.min(totalPages, currentPage + 1)) })}`}
-            className={`p-2  border border-neutral-800 transition-colors ${currentPage >= totalPages ? 'opacity-50 pointer-events-none' : 'hover:bg-neutral-800'}`}
+            className={`p-2 border border-outline-variant transition-colors ${currentPage >= totalPages ? 'opacity-50 pointer-events-none' : 'hover:bg-surface-container-high'}`}
           >
             <ChevronRight className="w-5 h-5" />
           </Link>
