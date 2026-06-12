@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { SnippetCard } from '@/components/snippet-card';
 import { CodeBlock } from '@/components/code-block';
+import { OwnerActions } from './owner-actions';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
@@ -56,6 +57,7 @@ export default async function SnippetViewPage(props: { params: Promise<{ id: str
       </div>
 
       <SnippetCard snippet={snippet} currentUser={user} isFavorited={isFavorited} />
+      {user && user.id === snippet.user_id && <OwnerActions snippet={snippet} />}
       <div className="mt-8">
         <CodeBlock code={snippet.code} language={snippet.language} />
       </div>
