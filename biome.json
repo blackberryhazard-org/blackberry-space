@@ -13,7 +13,9 @@
       "!next-env.d.ts",
       "!**/*.lock",
       "!package-lock.json",
-      "!bun.lock"
+      "!bun.lock",
+      "!**/database.types.ts",
+      "!supabase/.temp"
     ]
   },
   "formatter": {

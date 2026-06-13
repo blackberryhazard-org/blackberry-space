@@ -1,4 +1,5 @@
 import { createBrowserClient } from '@supabase/ssr';
+import type { Database } from '@/lib/database.types';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
@@ -9,7 +10,7 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
 const isProd = process.env.NODE_ENV === 'production';
 
 export const createClient = () =>
-  createBrowserClient(supabaseUrl!, supabaseKey!, {
+  createBrowserClient<Database>(supabaseUrl!, supabaseKey!, {
     cookieOptions: {
       sameSite: isProd ? 'none' : 'lax',
       secure: isProd,

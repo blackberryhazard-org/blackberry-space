@@ -4,6 +4,7 @@ import { SnippetCardCompact } from '@/components/snippet-card-compact';
 import { FileCode2, Heart, Calendar } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
+import type { SnippetWithProfile } from '@/lib/types';
 
 export const revalidate = 0;
 
@@ -20,49 +21,49 @@ export default async function ProfilePage(props: { searchParams: Promise<{ tab?:
     redirect('/');
   }
 
-  // Fetch user profile data
-  const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-
-  let snippets: any[] = [];
-  const favoritedSnippetIds = new Set<string>();
-
-  // Get favorites for toggling
-  const { data: favoritesData } = await supabase
-    .from('favorites')
-    .select('snippet_id')
-    .eq('user_id', user.id);
-
-  if (favoritesData) {
-    favoritesData.forEach((f) => favoritedSnippetIds.add(f.snippet_id));
-  }
-
-  if (tab === 'snippets') {
-    const { data } = await supabase
-      .from('snippets')
-      .select(`
-        *,
-        profiles ( full_name, avatar_url, username )
-      `)
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
-    snippets = data || [];
-  } else if (tab === 'favorites') {
-    const { data } = await supabase
-      .from('favorites')
-      .select(`
+  // Profile row, the favorite-id set (for toggling), and the active tab's data
+  // are independent reads — fetch them concurrently.
+  const tabQuery =
+    tab === 'favorites'
+      ? supabase
+          .from('favorites')
+          .select(`
         snippet_id,
         snippets (
           *,
           profiles ( full_name, avatar_url, username )
         )
       `)
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+      : supabase
+          .from('snippets')
+          .select(`
+        *,
+        profiles ( full_name, avatar_url, username )
+      `)
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
 
-    if (data) {
-      // Map out the nested snippet structure
-      snippets = data.map((f) => f.snippets).filter(Boolean);
-    }
+  const [{ data: profile }, { data: favoritesData }, { data: tabData }] = await Promise.all([
+    supabase.from('profiles').select('*').eq('id', user.id).single(),
+    supabase.from('favorites').select('snippet_id').eq('user_id', user.id),
+    tabQuery,
+  ]);
+
+  const favoritedSnippetIds = new Set<string>();
+  if (favoritesData) {
+    favoritesData.forEach((f) => favoritedSnippetIds.add(f.snippet_id));
+  }
+
+  let snippets: SnippetWithProfile[] = [];
+  if (tab === 'favorites') {
+    // Map out the nested snippet structure
+    snippets = ((tabData as { snippets: SnippetWithProfile | null }[] | null) || [])
+      .map((f) => f.snippets)
+      .filter((s): s is SnippetWithProfile => s !== null);
+  } else {
+    snippets = (tabData as SnippetWithProfile[]) || [];
   }
 
   return (
@@ -74,6 +75,9 @@ export default async function ProfilePage(props: { searchParams: Promise<{ tab?:
             <img
               src={user.user_metadata.avatar_url}
               alt="Profile"
+              width={96}
+              height={96}
+              decoding="async"
               className="w-full h-full object-cover"
             />
           ) : (

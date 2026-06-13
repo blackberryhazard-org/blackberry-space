@@ -1,57 +1,20 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Copy, Check, Download, Loader2 } from 'lucide-react';
 import { toPng } from 'html-to-image';
 
 interface CodeBlockProps {
   code: string;
   language: string;
+  /** Pre-rendered Shiki HTML, highlighted on the server. */
+  html: string;
 }
 
-export function CodeBlock({ code, language }: CodeBlockProps) {
+export function CodeBlock({ code, language, html }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
-  const [htmlCode, setHtmlCode] = useState<string>('');
   const blockRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    let ignore = false; // Memperbaiki penanganan race condition jika props berubah cepat
-
-    async function highlightCode() {
-      try {
-        const { codeToHtml } = await import('shiki');
-        const html = await codeToHtml(code, {
-          lang: language,
-          theme: 'dark-plus',
-        });
-        if (!ignore) {
-          setHtmlCode(html);
-        }
-      } catch (err) {
-        console.error('Error highlighting code with shiki:', err);
-        const escapeHtml = (text: string) => {
-          return text
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-        };
-        if (!ignore) {
-          setHtmlCode(
-            `<pre class="shiki dark-plus" style="background-color:transparent;color:#D4D4D4;" tabindex="0"><code>${escapeHtml(code)}</code></pre>`,
-          );
-        }
-      }
-    }
-
-    highlightCode();
-
-    return () => {
-      ignore = true;
-    };
-  }, [code, language]);
 
   const handleExport = async () => {
     if (!blockRef.current) return;
@@ -139,25 +102,21 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
         </div>
       </div>
       <div className="p-4 overflow-auto custom-scrollbar font-mono text-sm leading-relaxed max-h-[600px] bg-surface-container-lowest">
-        {htmlCode ? (
-          <div
-            dangerouslySetInnerHTML={{ __html: htmlCode }}
-            className="
-              [&>pre]:!bg-transparent [&>pre]:!p-0 [&>pre]:!m-0 [&>pre]:!text-[0.875rem]
-              [&>pre>code]:[counter-reset:line]
-              [&>pre>code>.line]:before:[counter-increment:line]
-              [&>pre>code>.line]:before:content-[counter(line)]
-              [&>pre>code>.line]:before:inline-block
-              [&>pre>code>.line]:before:w-6
-              [&>pre>code>.line]:before:mr-4
-              [&>pre>code>.line]:before:text-right
-              [&>pre>code>.line]:before:text-outline-variant
-              [&>pre>code>.line]:before:select-none
-            "
-          />
-        ) : (
-          <pre className="text-on-surface-variant animate-pulse">Loading code...</pre>
-        )}
+        <div
+          dangerouslySetInnerHTML={{ __html: html }}
+          className="
+            [&>pre]:!bg-transparent [&>pre]:!p-0 [&>pre]:!m-0 [&>pre]:!text-[0.875rem]
+            [&>pre>code]:[counter-reset:line]
+            [&>pre>code>.line]:before:[counter-increment:line]
+            [&>pre>code>.line]:before:content-[counter(line)]
+            [&>pre>code>.line]:before:inline-block
+            [&>pre>code>.line]:before:w-6
+            [&>pre>code>.line]:before:mr-4
+            [&>pre>code>.line]:before:text-right
+            [&>pre>code>.line]:before:text-outline-variant
+            [&>pre>code>.line]:before:select-none
+          "
+        />
       </div>
     </div>
   );
