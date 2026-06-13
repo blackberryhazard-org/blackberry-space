@@ -12,6 +12,8 @@ import {
   Compass,
   FileCode2,
   Swords,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -20,6 +22,7 @@ import type { User } from '@supabase/supabase-js';
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isSnippetsOpen, setIsSnippetsOpen] = useState(true);
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
   const supabase = createClient();
@@ -192,26 +195,41 @@ export function Navbar() {
         <nav className="p-4 flex-1 space-y-2 overflow-y-auto">
           {/* Mobile Snippets Submenu */}
           <div className="space-y-2">
-            <div className="px-3 py-2 text-xs font-bold text-on-surface-variant uppercase tracking-wider flex items-center gap-2">
-              <FileCode2 className="w-4 h-4" />
-              Snippets
-            </div>
-            <Link
-              href="/"
-              onClick={() => setIsOpen(false)}
-              className={`flex items-center gap-3 px-3 py-3 pl-8 transition-colors text-sm uppercase tracking-wider font-bold ${pathname === '/' ? 'bg-surface-container-high text-primary border border-primary' : 'text-on-surface active:bg-surface-container hover:text-primary'}`}
+            <button
+              type="button"
+              onClick={() => setIsSnippetsOpen(!isSnippetsOpen)}
+              className="w-full px-3 py-2 text-xs font-bold text-on-surface-variant hover:text-on-surface uppercase tracking-wider flex items-center justify-between transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
-              <Compass className="w-5 h-5" />
-              Discover
-            </Link>
-            <Link
-              href="/snippets/new"
-              onClick={() => setIsOpen(false)}
-              className={`flex items-center gap-3 px-3 py-3 pl-8 transition-colors text-sm uppercase tracking-wider font-bold ${pathname === '/snippets/new' ? 'bg-surface-container-high text-primary border border-primary' : 'text-on-surface active:bg-surface-container hover:text-primary'}`}
-            >
-              <PlusSquare className="w-5 h-5" />
-              Create
-            </Link>
+              <div className="flex items-center gap-2">
+                <FileCode2 className="w-4 h-4" />
+                Snippets
+              </div>
+              {isSnippetsOpen ? (
+                <ChevronDown className="w-4 h-4" />
+              ) : (
+                <ChevronRight className="w-4 h-4" />
+              )}
+            </button>
+            {isSnippetsOpen && (
+              <div className="flex flex-col animate-in slide-in-from-top-2 fade-in duration-200">
+                <Link
+                  href="/"
+                  onClick={() => setIsOpen(false)}
+                  className={`flex items-center gap-3 px-3 py-3 pl-8 transition-colors text-sm uppercase tracking-wider font-bold ${pathname === '/' ? 'bg-surface-container-high text-primary border border-primary' : 'text-on-surface active:bg-surface-container hover:text-primary'}`}
+                >
+                  <Compass className="w-5 h-5" />
+                  Discover
+                </Link>
+                <Link
+                  href="/snippets/new"
+                  onClick={() => setIsOpen(false)}
+                  className={`flex items-center gap-3 px-3 py-3 pl-8 transition-colors text-sm uppercase tracking-wider font-bold ${pathname === '/snippets/new' ? 'bg-surface-container-high text-primary border border-primary' : 'text-on-surface active:bg-surface-container hover:text-primary'}`}
+                >
+                  <PlusSquare className="w-5 h-5" />
+                  Create
+                </Link>
+              </div>
+            )}
           </div>
 
           {menus.map((item) => {

@@ -1,7 +1,6 @@
 'use client';
 
-import Link from 'next/link';
-import { Heart, Edit, Trash2, Share2, Check } from 'lucide-react';
+import { Heart, Share2, Check } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
@@ -39,7 +38,6 @@ export function SnippetCard({
 }: SnippetCardProps) {
   const [localFavorited, setLocalFavorited] = useState(isFavorited);
   const [isToggling, setIsToggling] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [shared, setShared] = useState(false);
 
   const supabase = createClient();
@@ -50,32 +48,6 @@ export function SnippetCard({
     await navigator.clipboard.writeText(url);
     setShared(true);
     setTimeout(() => setShared(false), 2000);
-  };
-
-  const handleDelete = async () => {
-    if (isDeleting || !currentUser || currentUser.id !== snippet.user_id) return;
-
-    if (
-      window.confirm('Are you sure you want to delete this snippet? This action cannot be undone.')
-    ) {
-      setIsDeleting(true);
-      try {
-        // SECURITY ENHANCEMENT: Defense in depth to prevent IDOR
-        // Ensures only the snippet owner can delete it, even if RLS is misconfigured
-        const { error } = await supabase
-          .from('snippets')
-          .delete()
-          .eq('id', snippet.id)
-          .eq('user_id', currentUser.id);
-
-        if (error) throw error;
-        router.refresh();
-      } catch (err) {
-        console.error('Failed to delete snippet:', err);
-        alert('Failed to delete snippet. Please try again.');
-        setIsDeleting(false);
-      }
-    }
   };
 
   const handleFavorite = async () => {
@@ -135,28 +107,7 @@ export function SnippetCard({
                 <Share2 className="w-5 h-5" aria-hidden="true" />
               )}
             </button>
-            {currentUser && currentUser.id === snippet.user_id && (
-              <>
-                <Link
-                  href={`/snippets/${snippet.id}/edit`}
-                  className="p-2 transition-all hover:bg-[rgba(255,255,255,0.05)] text-outline hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                  title="Edit snippet"
-                  aria-label="Edit snippet"
-                >
-                  <Edit className="w-5 h-5" aria-hidden="true" />
-                </Link>
-                <button
-                  type="button"
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-                  className={`p-2 transition-all hover:bg-[rgba(255,255,255,0.05)] text-outline hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  title="Delete snippet"
-                  aria-label="Delete snippet"
-                >
-                  <Trash2 className="w-5 h-5" aria-hidden="true" />
-                </button>
-              </>
-            )}
+
             <button
               type="button"
               onClick={handleFavorite}
