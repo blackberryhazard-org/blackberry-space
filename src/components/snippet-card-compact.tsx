@@ -5,25 +5,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
-
-interface Snippet {
-  id: string;
-  title: string;
-  description: string;
-  language: string;
-  tags: string[];
-  created_at: string;
-  user_id: string;
-  profiles?: {
-    full_name: string;
-    avatar_url: string;
-    username: string;
-  };
-}
+import type { User } from '@supabase/supabase-js';
+import type { SnippetWithProfile } from '@/lib/types';
 
 interface SnippetCardProps {
-  snippet: Snippet;
-  currentUser: any;
+  snippet: SnippetWithProfile;
+  currentUser: User | null;
   isFavorited?: boolean;
   onToggleFavorite?: (id: string, currentlyFavorited: boolean) => void;
 }
@@ -62,7 +49,6 @@ export function SnippetCardCompact({
             .eq('user_id', currentUser.id);
 
       if (error) throw error;
-      router.refresh();
     } catch (err) {
       setLocalFavorited(!next);
       if (onToggleFavorite) onToggleFavorite(snippet.id, !next);
@@ -144,6 +130,10 @@ export function SnippetCardCompact({
               <img
                 src={snippet.profiles.avatar_url}
                 alt=""
+                width={24}
+                height={24}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover"
               />
             )}
@@ -155,7 +145,9 @@ export function SnippetCardCompact({
 
         <span className="text-xs text-outline flex items-center gap-1.5 font-medium uppercase tracking-wider">
           <Clock className="w-3.5 h-3.5" />
-          {formatDistanceToNow(new Date(snippet.created_at), { addSuffix: true })}
+          {snippet.created_at
+            ? formatDistanceToNow(new Date(snippet.created_at), { addSuffix: true })
+            : 'recently'}
         </span>
       </div>
     </div>

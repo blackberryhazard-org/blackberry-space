@@ -3,6 +3,7 @@ import './globals.css';
 import { Outfit, JetBrains_Mono } from 'next/font/google';
 import { Navbar } from '@/components/navbar';
 import Script from 'next/script';
+import { createClient } from '@/utils/supabase/server';
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -66,7 +67,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <html lang="en" className={`${outfit.variable} ${jetbrainsMono.variable} dark`}>
       <body
@@ -80,7 +86,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           strategy="afterInteractive"
         />
 
-        <Navbar />
+        <Navbar initialUser={user} />
 
         <main className="flex-1 max-w-7xl mx-auto w-full p-4 md:p-8">{children}</main>
       </body>

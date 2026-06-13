@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Edit, Trash2, Github, Loader2 } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
+import type { SnippetWithProfile } from '@/lib/types';
 
-export function OwnerActions({ snippet }: { snippet: any }) {
+export function OwnerActions({ snippet }: { snippet: SnippetWithProfile }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const router = useRouter();

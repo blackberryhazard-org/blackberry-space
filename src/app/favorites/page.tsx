@@ -51,7 +51,7 @@ export default async function FavoritesPage() {
       ) : favorites && favorites.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {favorites.map(
-            (fav: any) =>
+            (fav) =>
               fav.snippets && (
                 <SnippetCardCompact
                   key={fav.snippet_id}

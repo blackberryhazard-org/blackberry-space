@@ -20,21 +20,16 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
-export function Navbar() {
+export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSnippetsOpen, setIsSnippetsOpen] = useState(true);
   const pathname = usePathname();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(initialUser);
   const supabase = createClient();
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user ?? null);
-    };
-    fetchUser();
+    // Initial user is provided by the server (layout). Only subscribe to auth
+    // changes here so login/logout stay reactive without an extra getUser() call.
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
@@ -133,6 +128,9 @@ export function Navbar() {
                     src={
                       user.user_metadata.avatar_url || 'https://picsum.photos/seed/picsum/200/200'
                     }
+                    width={32}
+                    height={32}
+                    decoding="async"
                     className="w-8 h-8 bg-surface-container border border-[rgba(255,255,255,0.1)]"
                     alt="Avatar"
                   />
@@ -286,6 +284,9 @@ export function Navbar() {
                 <img
                   src={user.user_metadata.avatar_url || 'https://picsum.photos/seed/picsum/200/200'}
                   alt="Avatar"
+                  width={40}
+                  height={40}
+                  decoding="async"
                   className="w-10 h-10 bg-surface-container border border-[rgba(255,255,255,0.1)]"
                 />
                 <div className="flex flex-col overflow-hidden">

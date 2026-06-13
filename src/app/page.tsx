@@ -30,7 +30,7 @@ export default async function Home(props: {
       *,
       profiles ( full_name, avatar_url, username )
     `,
-      { count: 'exact' },
+      { count: 'planned' },
     )
     .order('created_at', { ascending: false })
     .range(from, to);
@@ -44,20 +44,20 @@ export default async function Home(props: {
     }
   }
 
-  const { data: snippets, count, error } = await query;
+  // The snippets list and the user's favorites are independent reads — run them
+  // concurrently so the page waits on one round-trip instead of two.
+  const [{ data: snippets, count, error }, { data: favorites }] = await Promise.all([
+    query,
+    user
+      ? supabase.from('favorites').select('snippet_id').eq('user_id', user.id)
+      : Promise.resolve({ data: null }),
+  ]);
+
   const totalPages = count ? Math.ceil(count / itemsPerPage) : 0;
 
-  // Fetch user favorites if logged in
   const favoritedSnippetIds = new Set<string>();
-  if (user) {
-    const { data: favorites } = await supabase
-      .from('favorites')
-      .select('snippet_id')
-      .eq('user_id', user.id);
-
-    if (favorites) {
-      favorites.forEach((f) => favoritedSnippetIds.add(f.snippet_id));
-    }
+  if (favorites) {
+    favorites.forEach((f) => favoritedSnippetIds.add(f.snippet_id));
   }
 
   return (

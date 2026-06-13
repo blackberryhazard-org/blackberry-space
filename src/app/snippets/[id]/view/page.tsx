@@ -5,6 +5,7 @@ import { OwnerActions } from './owner-actions';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import { highlightToHtml } from '@/lib/highlighter';
 
 export const revalidate = 0;
 
@@ -44,6 +45,8 @@ export default async function SnippetViewPage(props: { params: Promise<{ id: str
     }
   }
 
+  const codeHtml = await highlightToHtml(snippet.code, snippet.language);
+
   return (
     <div className="pb-12 max-w-4xl mx-auto">
       <div className="mb-6">
@@ -59,7 +62,7 @@ export default async function SnippetViewPage(props: { params: Promise<{ id: str
       <SnippetCard snippet={snippet} currentUser={user} isFavorited={isFavorited} />
       {user && user.id === snippet.user_id && <OwnerActions snippet={snippet} />}
       <div className="mt-8">
-        <CodeBlock code={snippet.code} language={snippet.language} />
+        <CodeBlock code={snippet.code} language={snippet.language} html={codeHtml} />
       </div>
     </div>
   );
